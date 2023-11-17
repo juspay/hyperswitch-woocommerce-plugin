@@ -1,0 +1,7 @@
+  <svg xmlns="http://www.w3.org/2000/svg" id="klarna" viewBox="0 0 16 16">
+    <path d="M0 2.5A2.5 2.5 0 0 1 2.5 0h11A2.5 2.5 0 0 1 16 2.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 13.5v-11Z"
+      fill="#FFB3C7"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd"
+      d="M5.815 12H4V4h1.815v8ZM8.49 8.54A6.4 6.4 0 0 0 10.348 4H8.572c0 1.472-.67 2.823-1.836 3.707l-.704.533L8.758 12H11L8.491 8.54ZM12.5 10a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"
+      fill="#0A0B09"></path>
+  </svg>

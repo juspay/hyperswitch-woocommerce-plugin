@@ -1,0 +1,41 @@
+.woocommerce-order-pay form#payment-form {
+	width: 96%;
+	max-width: 640px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 2% 0;
+}
+
+form#payment-form {
+	min-width: min(calc(100vw - 2* var(--wp--custom--spacing--outer)), 360px);
+	max-width: 640px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+label[for="payment_method_hyperswitch_payment"] {
+	display: none;
+}
+
+.payment_box.payment_method_hyperswitch_payment * {
+	transition: all 0.5s ease;
+}
+
+@keyframes slowShow {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+#payment ul li.wc_payment_method.payment_method_hyperswitch_payment label img {
+	max-width: 2em;
+	max-height: 1.5em;
+}
