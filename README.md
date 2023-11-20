@@ -102,11 +102,18 @@ cd hyperswitch-woocommerce-plugin
 ### Sign up
 
 Sign up for Hyperswitch [here](https://app.hyperswitch.io/)
+<br>
 
-### Plugin Installation
+### Plugin Development and Installation
 
+Make the necessary changes in the plugin code, and run the command 
+```bash
+bash plugin.sh
+```
+This will generate the compressed plugin file.
 Upload and install the compressed plugin file in your WP-Admin Plugins section.
 Activate the plugin through the "Plugins" menu in WordPress.
+<br>
 
 ### Configure
 
@@ -114,6 +121,7 @@ Go to WooCommerce Settings –> Payments and configure your Hyperswitch settings
 Read more about the configuration process in the [plugin documentation](https://hyperswitch.io/docs/sdkIntegrations/wooCommercePlugin/wooCommercePluginOverview).
 
 Now test the integration by making a payment from your WordPress store!
+<br>
 
 <a href="#FAQs">
   <h2 id="FAQs">🤔 FAQs</h2>
@@ -124,9 +132,27 @@ Please refer to our [FAQs page][faqs].
 
 [faqs]: https://hyperswitch.io/docs/sdkIntegrations/wooCommercePlugin/wooCommercePluginFAQ
 
+<a href="#Roadmap">
+  <h2 id="Roadmap">🛣️ Roadmap</h2>
+</a>
+Our roadmap is open and community driven.
+
+- Support for one-click payment methods
+- Support for recurring payments
+- Custom fees based on the selected payment method
+- Checkout button across all product pages
+- Currency switcher - to detect geolocation IP of a customer and display all prices in home currency
+- Product recommendations
+- Product summary page
+- Address verification system
+- Multi-locale support
+
 <a href="#Join-us-in-building-Hyperswitch">
   <h2 id="Join-us-in-building-Hyperswitch">💪 Join us in building Hyperswitch</h2>
 </a>
+
+
+
 
 ### 🤝 Our Belief
 

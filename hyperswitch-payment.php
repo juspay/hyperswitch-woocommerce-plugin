@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://juspay.in
- * Version: 1.1.9
+ * Version: 1.2.0
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0

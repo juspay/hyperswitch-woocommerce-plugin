@@ -51,7 +51,6 @@ var endpoint;
 
 function renderHyperswitchSDK(client_secret, return_url) {
     var { publishable_key, appearance_obj, layout, enable_saved_payment_methods, show_card_from_by_default, endpoint, plugin_url, plugin_version } = client_data;
-    console.log(client_data);
     hyper = Hyper(publishable_key);
     hyperswitchPublishableKey = publishable_key;
     clientSecret = client_secret;
