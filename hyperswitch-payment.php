@@ -174,15 +174,13 @@ function hyperswitch_init_payment_class()
 
         function place_order_custom_button($button_html)
         {
-            $return_html = <<<HTML
-                <div onclick="
-                    const paymentMethod = new URLSearchParams(jQuery('form.checkout').serialize()).get('payment_method');
-                    if (paymentMethod == 'hyperswitch_payment') {
-                        event.preventDefault();
-                        handleHyperswitchAjax();
-                    }
-                ">{$button_html}</div>
-            HTML;
+            $return_html = '<div onclick="' .
+                'const paymentMethod = new URLSearchParams(jQuery(\'form.checkout\').serialize()).get(\'payment_method\');' .
+                'if (paymentMethod == \'hyperswitch_payment\') {' .
+                'event.preventDefault();' .
+                'handleHyperswitchAjax();' .
+                '}' .
+                '">' . $button_html . '</div>';
             echo $return_html;
         }
 
@@ -922,6 +920,10 @@ function hyperswitch_init_payment_class()
          **/
         function process_payment($payment_id)
         {
+            $nonce = $_POST['woocommerce-process-checkout-nonce'];
+            if (!wp_verify_nonce($nonce, 'woocommerce-process_checkout')) {
+                return array('result' => 'failure', 'nonce' => 'failed');
+            }
             $order = new WC_Order($payment_id);
             update_post_meta($payment_id, '_post_data', $_POST);
             return array('result' => 'success', 'redirect' => $order->get_checkout_payment_url(true));

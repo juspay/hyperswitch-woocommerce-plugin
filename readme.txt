@@ -2,8 +2,8 @@
 Contributors: hyperswitch, vrishabjuspay
 Tags: woocommerce, hyperswitch, payment, ecommerce, e-commerce, checkout
 Requires at least: 4.0
-Tested up to: 6.2.1
-Stable tag: 1.0.0
+Tested up to: 6.4.2
+Stable tag: 1.2.0
 Requires PHP: 7.0
 WC requires at least: 4.0.0
 WC tested up to: 8.0.2
@@ -135,3 +135,20 @@ Different payment methods across Payment Processors can be enabled/disabled on t
 
 2. ![Settings](assets/screenshot-2.png)
    Hyperswitch Payment Settings on WooCommerce > Settings > Payments tab
+
+== Terms of Service & Privacy Policy ==
+Our plugin relies on the Hyperswitch hosted service to support its functionality. Specifically, we use the following endpoints for processing payments and logs as part of our internal monitoring process:
+
+* Sandbox Environment *
+https://sandbox.juspay.io/godel/analytics - We utilize this endpoint to collect logs for internal monitoring purposes. These logs play a crucial role in analyzing the performance of our plugin, identifying potential issues, and ensuring the overall reliability of our service. The data collected through this endpoint is used exclusively for internal monitoring and improvement purposes.
+https://sandbox.hyperswitch.io - This endpoint is employed for securely processing payments. It ensures a seamless and efficient payment experience for our users. The use of this endpoint is exclusively dedicated to handling payment transactions and related processes.
+https://beta.hyperswitch.io/v1/HyperLoader.js - This endpoint is utilized for loading the script required to inject the payment sheet. This process enables the seamless integration of the payment sheet into our plugin, contributing to a user-friendly and efficient payment interface.
+
+* Production Environment *
+https://api.hyperswitch.io/sdk-logs - We utilize this endpoint to collect logs for internal monitoring purposes. These logs play a crucial role in analyzing the performance of our plugin, identifying potential issues, and ensuring the overall reliability of our service. The data collected through this endpoint is used exclusively for internal monitoring and improvement purposes.
+https://api.hyperswitch.io - This endpoint is employed for securely processing payments. It ensures a seamless and efficient payment experience for our users. The use of this endpoint is exclusively dedicated to handling payment transactions and related processes.
+https://checkout.hyperswitch.io/v0/HyperLoader.js - This endpoint is utilized for loading the script required to inject the payment sheet. This process enables the seamless integration of the payment sheet into our plugin, contributing to a user-friendly and efficient payment interface.
+
+It's essential to emphasize that the utilization of these endpoints is limited to specific, well-defined circumstances. We prioritize transparency and assure our users that any data collected is treated with the utmost confidentiality, adhering to industry standards for privacy and security. Our goal is to provide a secure, reliable, and user-friendly payment experience through strategic integration with these services.
+![Terms of Service](https://hyperswitch.io/terms-of-services)
+![Privacy Policy](https://hyperswitch.io/privacyPolicy)
