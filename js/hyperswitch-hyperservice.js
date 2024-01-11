@@ -233,9 +233,13 @@ function handleHyperswitchAjax() {
             }
           }
         }
+        var nonce = new URLSearchParams(
+          jQuery("form.checkout").serialize()
+        ).get("woocommerce-process-checkout-nonce");
         var payment_intent_data = {
           action: "create_payment_intent_from_order",
           order_id: order_id,
+          wc_nonce: nonce,
         };
         if (clientSecret) {
           payment_intent_data.client_secret = clientSecret;
@@ -276,15 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!hyperswitchUpdatePaymentIntentLock) {
         updatePaymentIntent(inputChangeId);
       }
-    }
-  });
-  jQuery("form.checkout button#place_order").on("click", function (event) {
-    const paymentMethod = new URLSearchParams(
-      jQuery("form.checkout").serialize()
-    ).get("payment_method");
-    if (paymentMethod == "hyperswitch_payment") {
-      event.preventDefault();
-      handleHyperswitchAjax();
     }
   });
 });
@@ -329,8 +324,12 @@ function updatePaymentIntent(inputChangeId) {
     var formData = jQuery("form.checkout").serialize();
     var forceIntentUpdate = inputChangeId.indexOf("country") !== -1;
     clientSecret = jQuery("#payment-form").data("client-secret");
+    var nonce = new URLSearchParams(jQuery("form.checkout").serialize()).get(
+      "woocommerce-process-checkout-nonce"
+    );
     var payment_intent_data = {
       action: "create_payment_intent_from_order",
+      wc_nonce: nonce,
     };
     if (clientSecret) {
       payment_intent_data.client_secret = clientSecret;

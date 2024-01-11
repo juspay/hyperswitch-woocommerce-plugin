@@ -1015,35 +1015,44 @@ function hyperswitch_webhook_init()
 
 function create_payment_intent_from_order()
 {
-    $hyperswitch = new WC_Hyperswitch_Payment();
-    $order_id = $_POST['order_id'];
-    $client_secret = $_POST['client_secret'];
-    if (!isset($client_secret)) {
-        $hyperswitch->post_log("WC_ORDER_CREATE", null, $order_id);
+    $nonce = $_POST['wc_nonce'];
+    if (!wp_verify_nonce($nonce, 'woocommerce-process_checkout')) {
+        wp_send_json(
+            array(
+                "messages" => "Something went wrong. Please try again or reload the page."
+            )
+        );
     } else {
-        $payment_id = "";
-        $parts = explode("_secret", $client_secret);
-        if (count($parts) === 2) {
-            $payment_id = $parts[0];
+        $hyperswitch = new WC_Hyperswitch_Payment();
+        $order_id = $_POST['order_id'];
+        $client_secret = $_POST['client_secret'];
+        if (!isset($client_secret)) {
+            $hyperswitch->post_log("WC_ORDER_CREATE", null, $order_id);
+        } else {
+            $payment_id = "";
+            $parts = explode("_secret", $client_secret);
+            if (count($parts) === 2) {
+                $payment_id = $parts[0];
+            }
+            $hyperswitch->post_log("WC_ORDER_UPDATE", $payment_id, $order_id);
         }
-        $hyperswitch->post_log("WC_ORDER_UPDATE", $payment_id, $order_id);
-    }
-    $payment_sheet = $hyperswitch->render_payment_sheet($order_id, $client_secret);
-    if (isset($payment_sheet['payment_sheet'])) {
-        $hyperswitch->post_log("WC_CHECKOUT_INITIATED", $order_id, $order_id);
-        wp_send_json(
-            array(
-                "order_id" => $order_id,
-                "payment_sheet" => $payment_sheet['payment_sheet']
-            )
-        );
-    } else {
-        $hyperswitch->post_log("WC_INTEGRATION_ERROR", $order_id, $order_id);
-        wp_send_json(
-            array(
-                "order_id" => $order_id,
-                "redirect" => $payment_sheet['redirect_url']
-            )
-        );
+        $payment_sheet = $hyperswitch->render_payment_sheet($order_id, $client_secret);
+        if (isset($payment_sheet['payment_sheet'])) {
+            $hyperswitch->post_log("WC_CHECKOUT_INITIATED", $order_id, $order_id);
+            wp_send_json(
+                array(
+                    "order_id" => $order_id,
+                    "payment_sheet" => $payment_sheet['payment_sheet']
+                )
+            );
+        } else {
+            $hyperswitch->post_log("WC_INTEGRATION_ERROR", $order_id, $order_id);
+            wp_send_json(
+                array(
+                    "order_id" => $order_id,
+                    "redirect" => $payment_sheet['redirect_url']
+                )
+            );
+        }
     }
 }
