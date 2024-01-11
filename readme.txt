@@ -124,7 +124,9 @@ Absolutely nothing! The Hyperswitch plugin is free to use, and does not add any 
 Different payment methods across Payment Processors can be enabled/disabled on the Hyperswitch Dashboard.
 
 == Changelog ==
-**1.1.9**
+**1.3.0**
+* Compatibility fixes for WordPress
+**1.2.0**
 * Initial Open-Source release.
 **1.1.0**
 * Initial release.

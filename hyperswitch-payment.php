@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://juspay.in
- * Version: 1.2.0
+ * Version: 1.3.0
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('HYPERSWITCH_WC_VERSION', '1.1.9');
+define('HYPERSWITCH_WC_VERSION', '1.3.0');
 define('WC_HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -302,8 +302,8 @@ function hyperswitch_init_payment_class()
                     'label' => 'Select Environment',
                     'type' => 'select',
                     'options' => array(
-                        'production' => __('Production', $this->id),
-                        'sandbox' => __('Sandbox', $this->id),
+                        'production' => __('Production', 'hyperswitch-checkout'),
+                        'sandbox' => __('Sandbox', 'hyperswitch-checkout'),
                     ),
                     'default' => 'sandbox',
                 ),
@@ -383,38 +383,27 @@ function hyperswitch_init_payment_class()
 
         function receipt_page($payment_id)
         {
-            switch (is_array(json_decode($this->get_option('appearance'), true))) {
-                case true:
-                    $appearance = $this->get_option('appearance');
-                    break;
-                case false:
-                    $appearance = "{}";
-                    break;
-                default:
-                    $appearance = "{}";
-                    break;
-            }
             $payment_intent = $this->create_payment_intent($payment_id);
             if (isset($payment_intent['clientSecret']) && isset($payment_intent['paymentId'])) {
                 $client_secret = $payment_intent['clientSecret'];
                 $payment_id = $payment_intent['paymentId'];
                 $this->post_log("WC_PAYMENT_INTENT_CREATED", null, $payment_id);
                 $return_url = $this->notify_url . '/?payment_id=' . $payment_id;
-                $return_html = <<<HTML
-                    <form id="payment-form" data-client-secret="$client_secret">
+                $return_html = '
+                    <form id="payment-form" data-client-secret="' . $client_secret . '">
                          <div id="unified-checkout"><!--hyperLoader injects the Unified Checkout--></div>
                         <div id="payment-message" class="hidden"></div>
                     </form>
 
                     <script>
-                        renderHyperswitchSDK('$client_secret', '$return_url');
+                        renderHyperswitchSDK("' . $client_secret . '", "' . $return_url . '");
                     </script>
-                    HTML;
+                    ';
                 echo $return_html;
             } else {
                 global $woocommerce;
                 $order = new WC_Order($payment_id);
-                $error = $payment_intent['error'];
+                $error = $payment_intent['body'];
                 $order->add_order_note('Unable to Create Hyperswitch Payment Intent.');
                 $order->add_order_note('Error: ' . $error);
                 $this->post_log("WC_FAILED_TO_CREATE_PAYMENT_INTENT", $error);
@@ -434,40 +423,29 @@ function hyperswitch_init_payment_class()
 
         function render_payment_sheet($order_id, $client_secret = null)
         {
-            switch (is_array(json_decode($this->get_option('appearance'), true))) {
-                case true:
-                    $appearance = $this->get_option('appearance');
-                    break;
-                case false:
-                    $appearance = "{}";
-                    break;
-                default:
-                    $appearance = "{}";
-                    break;
-            }
             $payment_intent = $this->create_payment_intent($order_id, $client_secret);
             if (isset($payment_intent['clientSecret']) && isset($payment_intent['paymentId'])) {
                 $client_secret = $payment_intent['clientSecret'];
                 $payment_id = $payment_intent['paymentId'];
                 $this->post_log("WC_PAYMENT_INTENT_CREATED", null, $payment_id);
                 $return_url = $this->notify_url . '/?payment_id=' . $payment_id;
-                $return_html = <<<HTML
-                    <form id="payment-form" data-client-secret="$client_secret">
+                $return_html = '
+                    <form id="payment-form" data-client-secret="' . $client_secret . '">
                          <div id="unified-checkout"><!--hyperLoader injects the Unified Checkout--></div>
                         <div id="payment-message" class="hidden"></div>
                     </form>
 
                     <script>
-                        renderHyperswitchSDK('$client_secret', '$return_url');
+                        renderHyperswitchSDK("' . $client_secret . '", "' . $return_url . '");
                     </script>
-                    HTML;
+                    ';
                 return array(
                     "payment_sheet" => $return_html
                 );
             } else {
                 global $woocommerce;
                 $order = new WC_Order($order_id);
-                $error = $payment_intent['error'];
+                $error = $payment_intent['body'];
                 $order->add_order_note('Unable to Create Hyperswitch Payment Intent.');
                 $order->add_order_note('Error: ' . $error);
                 $this->post_log("WC_FAILED_TO_CREATE_PAYMENT_INTENT", $error);
@@ -488,7 +466,6 @@ function hyperswitch_init_payment_class()
 
         function create_payment_intent($order_id, $client_secret = null)
         {
-            // Initialize cURL
             global $woocommerce;
             $order = wc_get_order($order_id);
             $apiKey = $this->get_option('api_key');
@@ -499,13 +476,11 @@ function hyperswitch_init_payment_class()
                 if (count($parts) === 2) {
                     $payment_id = $parts[0];
                 }
-                $curl = curl_init($this->hyperswitch_url . "/payments/" . $payment_id);
+                $url = $this->hyperswitch_url . "/payments/" . $payment_id;
             } else {
-                $curl = curl_init($this->hyperswitch_url . "/payments");
+                $url = $this->hyperswitch_url . "/payments";
             }
 
-
-            curl_setopt($curl, CURLOPT_POST, true);
             $payload = array();
             $currency = get_woocommerce_currency();
             $amount = (int) ($woocommerce->cart->total * 100);
@@ -517,25 +492,25 @@ function hyperswitch_init_payment_class()
                 $billing_city = $order->get_billing_city();
                 $billing_state = $order->get_billing_state();
                 $billing_country = $order->get_billing_country();
-                $billing_zip = $this->append_escape_string($order->get_billing_postcode());
-                $billing_first_name = $this->append_escape_string($order->get_billing_first_name());
-                $billing_last_name = $this->append_escape_string($order->get_billing_last_name());
-                $billing_line1 = $this->append_escape_string($order->get_billing_address_1());
-                $billing_line2 = $this->append_escape_string($order->get_billing_address_2());
-                $billing_phone = $this->append_escape_string($order->get_billing_phone());
+                $billing_zip = $order->get_billing_postcode();
+                $billing_first_name = $order->get_billing_first_name();
+                $billing_last_name = $order->get_billing_last_name();
+                $billing_line1 = $order->get_billing_address_1();
+                $billing_line2 = $order->get_billing_address_2();
+                $billing_phone = $order->get_billing_phone();
                 //shipping details
                 $shipping_city = $order->get_shipping_city();
                 $shipping_state = $order->get_shipping_state();
                 $shipping_country = $order->get_shipping_country();
-                $shipping_zip = $this->append_escape_string($order->get_shipping_postcode());
-                $shipping_first_name = $this->append_escape_string($order->get_shipping_first_name());
-                $shipping_last_name = $this->append_escape_string($order->get_shipping_last_name());
-                $shipping_line1 = $this->append_escape_string($order->get_shipping_address_1());
-                $shipping_line2 = $this->append_escape_string($order->get_shipping_address_2());
-                $shipping_phone = $this->append_escape_string($order->get_shipping_phone());
+                $shipping_zip = $order->get_shipping_postcode();
+                $shipping_first_name = $order->get_shipping_first_name();
+                $shipping_last_name = $order->get_shipping_last_name();
+                $shipping_line1 = $order->get_shipping_address_1();
+                $shipping_line2 = $order->get_shipping_address_2();
+                $shipping_phone = $order->get_shipping_phone();
 
                 $currency = $order->get_currency();
-                $phone = $this->append_escape_string($order->get_billing_phone());
+                $phone = $order->get_billing_phone();
                 $email = $order->get_billing_email();
                 $return_url = $this->notify_url;
                 $order_details = array();
@@ -625,7 +600,7 @@ function hyperswitch_init_payment_class()
             );
 
             if ($order) {
-                $metadata["order_num"] = $this->append_escape_string($order_id);
+                $metadata["order_num"] = $order_id;
                 $metadata["customer_note"] = $order_note;
                 $payload["email"] = $email;
                 $payload["name"] = $billing_first_name . " " . $billing_last_name;
@@ -641,27 +616,20 @@ function hyperswitch_init_payment_class()
             $payload["amount"] = $amount;
             $payload["currency"] = $currency;
 
-            // Set the request headers
-            curl_setopt(
-                $curl,
-                CURLOPT_HTTPHEADER,
-                array(
+            $args = array(
+                'body' => wp_json_encode($payload),
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => 1.0,
+                'blocking' => true,
+                'data_format' => 'body',
+                'headers' => array(
                     'Content-Type: application/json',
                     'api-key: ' . $apiKey
                 )
             );
 
-            // Set the request payload
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->remove_escape_string(json_encode($payload, JSON_NUMERIC_CHECK)));
-
-            // Set the option to return the response as a string
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-            // Execute the request
-            $response = curl_exec($curl);
-
-            // Close cURL
-            curl_close($curl);
+            $response = wp_remote_retrieve_body(wp_remote_post($url, $args));
 
             // Parse the 'client_secret' key from the response
             $responseData = json_decode($response, true);
@@ -671,87 +639,64 @@ function hyperswitch_init_payment_class()
             return array(
                 "clientSecret" => $clientSecret,
                 "paymentId" => $paymentId,
-                "error" => json_encode($error)
+                "error" => json_encode($error),
+                "body" => wp_json_encode($payload),
             );
         }
 
         function retrieve_payment_intent($payment_id)
         {
-            // Initialize cURL
             $apiKey = $this->get_option('api_key');
 
             $url = $this->hyperswitch_url . "/payments/" . $payment_id;
-            $curl = curl_init($url);
 
-            // Set the request method to POST
-            curl_setopt($curl, CURLOPT_HTTPGET, true);
-
-            // Set the request headers
-            curl_setopt(
-                $curl,
-                CURLOPT_HTTPHEADER,
-                array(
+            $args = array(
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => 1.0,
+                'blocking' => true,
+                'headers' => array(
                     'Content-Type: application/json',
                     'api-key: ' . $apiKey
                 )
             );
 
-            // Set the option to return the response as a string
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
             // Execute the request
-            $response = curl_exec($curl);
+            $response = wp_remote_retrieve_body(wp_remote_get($url, $args));
 
-            // Close cURL
-            curl_close($curl);
             return json_decode($response, true);
         }
 
         public function create_customer($customer_id, $name, $email)
         {
-            // Initialize cURL
             $apiKey = $this->get_option('api_key');
 
             $url = $this->hyperswitch_url . "/customers";
-            $curl = curl_init($url);
-
-            // Set the request method to POST
-            curl_setopt($curl, CURLOPT_POST, true);
-
-            // Set the request headers
-            curl_setopt(
-                $curl,
-                CURLOPT_HTTPHEADER,
-                array(
-                    'Content-Type: application/json',
-                    'api-key: ' . $apiKey
-                )
-            );
-
             $payload = array(
                 "customer_id" => $customer_id,
                 "email" => $email,
                 "name" => $name,
                 "description" => "Customer created via Woocommerce Application"
             );
+            $args = array(
+                'body' => wp_json_encode($payload),
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => 1.0,
+                'blocking' => true,
+                'data_format' => 'body',
+                'headers' => array(
+                    'Content-Type: application/json',
+                    'api-key: ' . $apiKey
+                )
+            );
 
-            // Set the request payload
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->remove_escape_string(json_encode($payload)));
-
-            // Set the option to return the response as a string
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-            // Execute the request
-            $response = curl_exec($curl);
-
-            // Close cURL
-            curl_close($curl);
+            $response = wp_remote_retrieve_body(wp_remote_post($url, $args));
             return json_decode($response, true);
         }
 
         public function post_log($event_name, $value = null, $payment_id = null)
         {
-            // Initialize cURL
             $publishable_key = $this->get_option('publishable_key');
 
             switch ($this->environment) {
@@ -765,19 +710,6 @@ function hyperswitch_init_payment_class()
                     $url = "https://sandbox.juspay.io/godel/analytics";
                     break;
             }
-            $curl = curl_init($url);
-
-            // Set the request method to POST
-            curl_setopt($curl, CURLOPT_POST, true);
-
-            // Set the request headers
-            curl_setopt(
-                $curl,
-                CURLOPT_HTTPHEADER,
-                array(
-                    'Content-Type: application/json'
-                )
-            );
 
             if (str_contains($event_name, "ERROR")) {
                 $log_type = "ERROR";
@@ -808,62 +740,49 @@ function hyperswitch_init_payment_class()
                 "data" => [$payload]
             );
 
-            // Set the request payload
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+            $args = array(
+                'body' => wp_json_encode($data),
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => 1.0,
+                'blocking' => false,
+                'data_format' => 'body',
+                'headers' => array(
+                    'Content-Type: application/json'
+                )
+            );
 
-            // Set the option to return the response as a string
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-            // Execute the request
-            $response = curl_exec($curl);
-
-            // Close cURL
-            curl_close($curl);
+            $response = wp_remote_retrieve_body(wp_remote_post($url, $args));
             return json_decode($response, true);
         }
 
         public function manual_capture($payment_id)
         {
-            // Initialize cURL
             $apiKey = $this->get_option('api_key');
 
             $url = $this->hyperswitch_url . "/payments/" . $payment_id . "/capture";
-            $curl = curl_init($url);
 
-            // Set the request method to POST
-            curl_setopt($curl, CURLOPT_POST, true);
-
-            // Set the request headers
-            curl_setopt(
-                $curl,
-                CURLOPT_HTTPHEADER,
-                array(
+            // Execute the request
+            $args = array(
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => 1.0,
+                'blocking' => false,
+                'headers' => array(
                     'Content-Type: application/json',
                     'api-key: ' . $apiKey
                 )
             );
 
-            // Set the request payload
-            curl_setopt($curl, CURLOPT_POSTFIELDS, "{}");
-
-            // Set the option to return the response as a string
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-            // Execute the request
-            $response = curl_exec($curl);
-
-            // Close cURL
-            curl_close($curl);
+            $response = wp_remote_retrieve_body(wp_remote_post($url, $args));
             return json_decode($response, true);
         }
 
         public function create_refund($payment_id, $amount, $reason, $refund_num, $order_id)
         {
-            // Initialize cURL
             $apiKey = $this->get_option('api_key');
 
             $url = $this->hyperswitch_url . "/refunds";
-            $curl = curl_init($url);
 
             $metadata = array(
                 "refund_num" => $refund_num,
@@ -873,46 +792,28 @@ function hyperswitch_init_payment_class()
             $payload = array(
                 "payment_id" => $payment_id,
                 "amount" => ((int) $amount * 100),
-                "reason" => $this->append_escape_string($reason),
+                "reason" => $reason,
                 "refund_type" => "instant",
                 "metadata" => $metadata
             );
 
-            // Set the request method to POST
-            curl_setopt($curl, CURLOPT_POST, true);
-
-            // Set the request headers
-            curl_setopt(
-                $curl,
-                CURLOPT_HTTPHEADER,
-                array(
+            // Execute the request
+            $args = array(
+                'body' => wp_json_encode($payload),
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => 1.0,
+                'blocking' => false,
+                'data_format' => 'body',
+                'headers' => array(
                     'Content-Type: application/json',
                     'api-key: ' . $apiKey
                 )
             );
 
-            // Set the request payload
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->remove_escape_string(json_encode($payload, JSON_NUMERIC_CHECK)));
+            $response = wp_remote_retrieve_body(wp_remote_post($url, $args));
 
-            // Set the option to return the response as a string
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-            // Execute the request
-            $response = curl_exec($curl);
-
-            // Close cURL
-            curl_close($curl);
             return json_decode($response, true);
-        }
-
-        function append_escape_string($str)
-        {
-            return $this->escape_string . $str;
-        }
-
-        function remove_escape_string($encoded_json)
-        {
-            return str_replace($this->escape_string, '', $encoded_json);
         }
 
         /**
