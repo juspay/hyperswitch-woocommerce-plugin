@@ -237,7 +237,7 @@ function handleHyperswitchAjax() {
           jQuery("form.checkout").serialize()
         ).get("woocommerce-process-checkout-nonce");
         var payment_intent_data = {
-          action: "create_payment_intent_from_order",
+          action: "hyperswitch_create_or_update_payment_intent",
           order_id: order_id,
           wc_nonce: nonce,
         };
@@ -328,7 +328,7 @@ function updatePaymentIntent(inputChangeId) {
       "woocommerce-process-checkout-nonce"
     );
     var payment_intent_data = {
-      action: "create_payment_intent_from_order",
+      action: "hyperswitch_create_or_update_payment_intent",
       wc_nonce: nonce,
     };
     if (clientSecret) {

@@ -32,15 +32,15 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('HYPERSWITCH_WC_VERSION', '1.3.0');
-define('WC_HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
+define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.3.0');
+define('HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
 
 add_action('plugins_loaded', 'hyperswitch_init_payment_class', 0);
 add_action('admin_post_nopriv_hyperswitch_wc_webhook', 'hyperswitch_webhook_init', 10);
-add_action('wp_ajax_nopriv_create_payment_intent_from_order', 'create_payment_intent_from_order', 5);
-add_action('wp_ajax_create_payment_intent_from_order', 'create_payment_intent_from_order', 5);
+add_action('wp_ajax_nopriv_hyperswitch_create_or_update_payment_intent', 'hyperswitch_create_or_update_payment_intent', 5);
+add_action('wp_ajax_hyperswitch_create_or_update_payment_intent', 'hyperswitch_create_or_update_payment_intent', 5);
 
 function hyperswitch_init_payment_class()
 {
@@ -49,7 +49,7 @@ function hyperswitch_init_payment_class()
         return;
     }
 
-    class WC_Hyperswitch_Payment extends WC_Payment_Gateway
+    class Hyperswitch_Payment extends WC_Payment_Gateway
     {
 
         public function __construct()
@@ -65,9 +65,8 @@ function hyperswitch_init_payment_class()
             $this->init_settings();
 
             $this->title = __($this->get_option('method_title'), 'hyperswitch-checkout');
-            $this->icon = WC_HYPERSWITCH_PLUGIN_URL . '/assets/images/default.svg';
-            $this->plugin_url = WC_HYPERSWITCH_PLUGIN_URL . '/assets/images/';
-            $this->escape_string = "xnstr#";
+            $this->icon = HYPERSWITCH_PLUGIN_URL . '/assets/images/default.svg';
+            $this->plugin_url = HYPERSWITCH_PLUGIN_URL . '/assets/images/';
             $this->environment = $this->get_option('environment');
             $this->enable_saved_payment_methods = $this->get_option('enable_saved_payment_methods') === 'yes';
             $this->show_card_from_by_default = $this->get_option('show_card_from_by_default') === 'yes';
@@ -97,7 +96,7 @@ function hyperswitch_init_payment_class()
 
             if ($this->enabled == 'yes') {
                 add_action('woocommerce_api_wc_hyperswitch', array($this, 'check_hyperswitch_response'));
-                wp_enqueue_style('hyperswitchcss', plugins_url('/css/hyperswitch.css', __FILE__), array(), HYPERSWITCH_WC_VERSION);
+                wp_enqueue_style('hyperswitchcss', plugins_url('/css/hyperswitch.css', __FILE__), array(), HYPERSWITCH_CHECKOUT_PLUGIN_VERSION);
                 $client_data = [
                     'publishable_key' => $this->get_option('publishable_key'),
                     'appearance_obj' => $this->get_option('appearance'),
@@ -106,7 +105,7 @@ function hyperswitch_init_payment_class()
                     'show_card_from_by_default' => $this->get_option('show_card_from_by_default') === 'yes',
                     'endpoint' => $this->hyperswitch_url,
                     'plugin_url' => $this->plugin_url,
-                    'plugin_version' => HYPERSWITCH_WC_VERSION,
+                    'plugin_version' => HYPERSWITCH_CHECKOUT_PLUGIN_VERSION,
                 ];
 
                 wp_enqueue_script('hyperswitch-hyperloader', $script_url);
@@ -115,7 +114,7 @@ function hyperswitch_init_payment_class()
                     'hyperswitch-hyperservice',
                     plugins_url('/js/hyperswitch-hyperservice.js', __FILE__),
                     array('hyperswitch-hyperloader'),
-                    'HYPERSWITCH_WC_VERSION'
+                    'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION'
                 );
                 wp_localize_script('hyperswitch-hyperservice', 'clientdata', $client_data);
                 wp_enqueue_script('hyperswitch-hyperservice');
@@ -174,14 +173,16 @@ function hyperswitch_init_payment_class()
 
         function place_order_custom_button($button_html)
         {
-            $return_html = '<div onclick="' .
+            // not escaping here as the only variable is $button_html which is returned by default even otherwise
+            echo
+                '<div onclick="' .
                 'const paymentMethod = new URLSearchParams(jQuery(\'form.checkout\').serialize()).get(\'payment_method\');' .
                 'if (paymentMethod == \'hyperswitch_payment\') {' .
                 'event.preventDefault();' .
                 'handleHyperswitchAjax();' .
                 '}' .
-                '">' . $button_html . '</div>';
-            echo $return_html;
+                '">' . $button_html . '</div>'
+            ;
         }
 
 
@@ -389,17 +390,16 @@ function hyperswitch_init_payment_class()
                 $payment_id = $payment_intent['paymentId'];
                 $this->post_log("WC_PAYMENT_INTENT_CREATED", null, $payment_id);
                 $return_url = $this->notify_url . '/?payment_id=' . $payment_id;
-                $return_html = '
-                    <form id="payment-form" data-client-secret="' . $client_secret . '">
-                         <div id="unified-checkout"><!--hyperLoader injects the Unified Checkout--></div>
+                echo '
+                    <form id="payment-form" data-client-secret="' . esc_html($client_secret) . '">
+                        <div id="unified-checkout"><!--hyperLoader injects the Unified Checkout--></div>
                         <div id="payment-message" class="hidden"></div>
                     </form>
-
                     <script>
-                        renderHyperswitchSDK("' . $client_secret . '", "' . $return_url . '");
+                        renderHyperswitchSDK("' . esc_html($client_secret) . '", "' . esc_url($return_url) . '");
                     </script>
-                    ';
-                echo $return_html;
+                    '
+                ;
             } else {
                 global $woocommerce;
                 $order = new WC_Order($payment_id);
@@ -430,13 +430,13 @@ function hyperswitch_init_payment_class()
                 $this->post_log("WC_PAYMENT_INTENT_CREATED", null, $payment_id);
                 $return_url = $this->notify_url . '/?payment_id=' . $payment_id;
                 $return_html = '
-                    <form id="payment-form" data-client-secret="' . $client_secret . '">
+                    <form id="payment-form" data-client-secret="' . esc_html($client_secret) . '">
                          <div id="unified-checkout"><!--hyperLoader injects the Unified Checkout--></div>
                         <div id="payment-message" class="hidden"></div>
                     </form>
 
                     <script>
-                        renderHyperswitchSDK("' . $client_secret . '", "' . $return_url . '");
+                        renderHyperswitchSDK("' . esc_html($client_secret) . '", "' . esc_url($return_url) . '");
                     </script>
                     ';
                 return array(
@@ -722,7 +722,7 @@ function hyperswitch_init_payment_class()
                 "merchant_id" => $publishable_key,
                 "event_name" => $event_name,
                 "component" => "PLUGIN",
-                "version" => HYPERSWITCH_WC_VERSION,
+                "version" => HYPERSWITCH_CHECKOUT_PLUGIN_VERSION,
                 "source" => "WORDPRESS",
                 "log_type" => $log_type,
                 "log_category" => "MERCHANT_EVENT",
@@ -827,7 +827,6 @@ function hyperswitch_init_payment_class()
                 return array('result' => 'failure', 'nonce' => 'failed');
             }
             $order = new WC_Order($payment_id);
-            update_post_meta($payment_id, '_post_data', $_POST);
             return array('result' => 'success', 'redirect' => $order->get_checkout_payment_url(true));
         }
 
@@ -900,7 +899,7 @@ function hyperswitch_init_payment_class()
 
     function hyperswitch_add_payment_class($gateways)
     {
-        $gateways[] = 'WC_Hyperswitch_Payment';
+        $gateways[] = 'Hyperswitch_Payment';
         return $gateways;
     }
 
@@ -915,7 +914,7 @@ function hyperswitch_webhook_init()
     $hyperswitchWebhook->process();
 }
 
-function create_payment_intent_from_order()
+function hyperswitch_create_or_update_payment_intent()
 {
     $nonce = $_POST['wc_nonce'];
     if (!wp_verify_nonce($nonce, 'woocommerce-process_checkout')) {
@@ -925,7 +924,7 @@ function create_payment_intent_from_order()
             )
         );
     } else {
-        $hyperswitch = new WC_Hyperswitch_Payment();
+        $hyperswitch = new Hyperswitch_Payment();
         $order_id = $_POST['order_id'];
         $client_secret = $_POST['client_secret'];
         if (!isset($client_secret)) {
