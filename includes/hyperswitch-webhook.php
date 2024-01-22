@@ -1,4 +1,6 @@
 <?php
+if (!defined('ABSPATH'))
+    exit; // Exit if accessed directly
 
 require_once __DIR__ . '/../hyperswitch-payment.php';
 
@@ -38,53 +40,55 @@ class Hyperswitch_Webhook
 
     public function __construct()
     {
-        $this->hyperswitch = new WC_Hyperswitch_Payment();
+        $this->hyperswitch = new Hyperswitch_Payment();
 
     }
 
     public function process()
     {
-        $post = file_get_contents('php://input');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $raw_post_data = file_get_contents('php://input');
+            if (!empty($raw_post_data)) {
+                $data = json_decode($raw_post_data, true);
 
-        $data = json_decode($post, true);
-
-        $signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE_512'];
+                $signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE_512'];
 
 
-        if (json_last_error() !== 0) {
-            return;
-        }
-
-        $enabled = $this->hyperswitch->get_option('enable_webhook');
-
-        if (($enabled === 'yes') and (empty($data['event_type']) === false)) {
-            // Skip the webhook if webhooks are disabled, or the event type is unrecognised
-            $payment_id = $data['content']['object']['payment_id'];
-            $this->hyperswitch->post_log("WC_WEBHOOK_RECEIVED", $data['event_type'], $payment_id);
-            if ($this->shouldConsumeWebhook($data, $signature, $post) === false) {
-                return;
-            }
-            switch ($data['event_type']) {
-                case self::PAYMENT_SUCCEEDED:
-                    return $this->paymentAuthorized($data);
-
-                case self::PAYMENT_FAILED:
-                    return $this->paymentHandle($data, "failed");
-
-                case self::PAYMENT_PROCESSING:
-                    return $this->paymentHandle($data, "processing");
-
-                case self::ACTION_REQURIED:
-                    return $this->paymentHandle($data, "action required");
-
-                case self::REFUND_SUCCEEDED:
-                    return $this->refundedCreated($data);
-
-                default:
+                if (json_last_error() !== 0) {
                     return;
+                }
+
+                $enabled = $this->hyperswitch->get_option('enable_webhook');
+
+                if (($enabled === 'yes') and (empty($data['event_type']) === false)) {
+                    // Skip the webhook if webhooks are disabled, or the event type is unrecognised
+                    $payment_id = $data['content']['object']['payment_id'];
+                    $this->hyperswitch->post_log("WC_WEBHOOK_RECEIVED", $data['event_type'], $payment_id);
+                    if ($this->shouldConsumeWebhook($data, $signature, $raw_post_data) === false) {
+                        return;
+                    }
+                    switch ($data['event_type']) {
+                        case self::PAYMENT_SUCCEEDED:
+                            return $this->paymentAuthorized($data);
+
+                        case self::PAYMENT_FAILED:
+                            return $this->paymentHandle($data, "failed");
+
+                        case self::PAYMENT_PROCESSING:
+                            return $this->paymentHandle($data, "processing");
+
+                        case self::ACTION_REQURIED:
+                            return $this->paymentHandle($data, "action required");
+
+                        case self::REFUND_SUCCEEDED:
+                            return $this->refundedCreated($data);
+
+                        default:
+                            return;
+                    }
+                }
             }
         }
-
     }
 
     protected function paymentAuthorized(array $data)

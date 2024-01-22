@@ -1,1 +1,1 @@
-zip hyperswitch-woocommerce-plugin ../hyperswitch-woocommerce-plugin
+ditto -c -k --sequesterRsrc --keepParent ../hyperswitch-woocommerce-plugin hyperswitch-woocommerce-plugin.zip
