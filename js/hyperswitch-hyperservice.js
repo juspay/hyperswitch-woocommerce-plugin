@@ -101,7 +101,7 @@ function renderHyperswitchSDK(client_secret, return_url) {
       var i = 0;
       setInterval(function () {
         jQuery(
-          ".wc_payment_method.payment_method_hyperswitch_payment label img"
+          ".wc_payment_method.payment_method_hyperswitch_checkout label img"
         )
           .css("opacity", 0)
           .attr(
@@ -211,7 +211,7 @@ function renderHyperswitchSDK(client_secret, return_url) {
 
 function handleHyperswitchAjax() {
   jQuery(".woocommerce-error").remove();
-  jQuery(".payment_method_hyperswitch_payment").block(
+  jQuery(".payment_method_hyperswitch_checkout").block(
     hyperswitchLoaderCustomSettings
   );
   clientSecret = jQuery("#payment-form").data("client-secret");
@@ -255,7 +255,7 @@ function handleHyperswitchAjax() {
           });
         }
       } else {
-        jQuery(".payment_method_hyperswitch_payment").unblock();
+        jQuery(".payment_method_hyperswitch_checkout").unblock();
         jQuery(".woocommerce").prepend(msg.messages);
         jQuery([document.documentElement, document.body]).animate(
           {
@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ).get("payment_method");
     clientSecret = jQuery("#payment-form").data("client-secret");
     // Ignore when other payment method selected, default behaviour is not affected
-    if (paymentMethod === "hyperswitch_payment" || clientSecret == null) {
+    if (paymentMethod === "hyperswitch_checkout" || clientSecret == null) {
       let inputChangeId = event.target.id;
       if (!hyperswitchUpdatePaymentIntentLock) {
         updatePaymentIntent(inputChangeId);
@@ -298,7 +298,7 @@ async function hyperswitchPaymentHandleSubmit() {
         jQuery([document.documentElement, document.body]).animate(
           {
             scrollTop: jQuery(
-              ".payment_box.payment_method_hyperswitch_payment"
+              ".payment_box.payment_method_hyperswitch_checkout"
             ).offset().top,
           },
           500
@@ -309,7 +309,7 @@ async function hyperswitchPaymentHandleSubmit() {
     } else {
       location.href = hyperswitchReturnUrl;
     }
-    jQuery(".payment_method_hyperswitch_payment").unblock();
+    jQuery(".payment_method_hyperswitch_checkout").unblock();
   } else {
     location.href = hyperswitchReturnUrl;
   }
@@ -318,7 +318,7 @@ async function hyperswitchPaymentHandleSubmit() {
 function updatePaymentIntent(inputChangeId) {
   if (!hyperswitchUpdatePaymentIntentLock) {
     hyperswitchUpdatePaymentIntentLock = true;
-    jQuery(".payment_method_hyperswitch_payment").block(
+    jQuery(".payment_method_hyperswitch_checkout").block(
       hyperswitchLoaderCustomSettings
     );
     var formData = jQuery("form.checkout").serialize();
@@ -344,11 +344,11 @@ function updatePaymentIntent(inputChangeId) {
             clientSecret == null ||
             (msg2.payment_sheet && forceIntentUpdate)
           ) {
-            jQuery(".payment_box.payment_method_hyperswitch_payment")
+            jQuery(".payment_box.payment_method_hyperswitch_checkout")
               .html(msg2.payment_sheet)
               .addClass("payment_sheet");
           }
-          jQuery(".payment_method_hyperswitch_payment").unblock(
+          jQuery(".payment_method_hyperswitch_checkout").unblock(
             hyperswitchLoaderCustomSettings
           );
           hyperswitchUpdatePaymentIntentLock = false;
@@ -356,7 +356,7 @@ function updatePaymentIntent(inputChangeId) {
           hyperswitchLastUpdatedFormData = formData;
         },
         error: function (_error) {
-          jQuery(".payment_method_hyperswitch_payment").unblock(
+          jQuery(".payment_method_hyperswitch_checkout").unblock(
             hyperswitchLoaderCustomSettings
           );
           hyperswitchUpdatePaymentIntentLock = false;
@@ -364,7 +364,7 @@ function updatePaymentIntent(inputChangeId) {
       });
     } else {
       jQuery(".woocommerce-error").remove();
-      jQuery(".payment_method_hyperswitch_payment").unblock(
+      jQuery(".payment_method_hyperswitch_checkout").unblock(
         hyperswitchLoaderCustomSettings
       );
       hyperswitchUpdatePaymentIntentLock = false;
@@ -434,8 +434,8 @@ function checkMultiplePaymentMethods() {
     jQuery(".wc_payment_methods.payment_methods.methods .wc_payment_method")
       .length > 1
   ) {
-    if (jQuery('label[for="payment_method_hyperswitch_payment"]').length) {
-      jQuery('label[for="payment_method_hyperswitch_payment"]').css({
+    if (jQuery('label[for="payment_method_hyperswitch_checkout"]').length) {
+      jQuery('label[for="payment_method_hyperswitch_checkout"]').css({
         display: "inline",
       });
     }
