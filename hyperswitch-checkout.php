@@ -4,12 +4,12 @@
  * Plugin URI: https://hyperswitch.io/
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
- * Author URI: https://juspay.in
- * Version: 1.3.0
+ * Author URI: https://hyperswitch.io/
+ * Version: 1.4.0
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
- * WC tested up to: 8.0.2
+ * WC tested up to: 8.6.1
  *
  * Copyright (c) 2023 Hyperswitch
  *
@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.3.0');
+define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.4.0');
 define('HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -41,6 +41,7 @@ add_action('plugins_loaded', 'hyperswitch_init_payment_class', 0);
 add_action('admin_post_nopriv_hyperswitch_wc_webhook', 'hyperswitch_webhook_init', 10);
 add_action('wp_ajax_nopriv_hyperswitch_create_or_update_payment_intent', 'hyperswitch_create_or_update_payment_intent', 5);
 add_action('wp_ajax_hyperswitch_create_or_update_payment_intent', 'hyperswitch_create_or_update_payment_intent', 5);
+add_action('before_woocommerce_init', 'hyperswitch_declare_compatibility', 5);
 
 function hyperswitch_init_payment_class()
 {
@@ -49,13 +50,13 @@ function hyperswitch_init_payment_class()
         return;
     }
 
-    class Hyperswitch_Payment extends WC_Payment_Gateway
+    class Hyperswitch_Checkout extends WC_Payment_Gateway
     {
 
         public function __construct()
         {
             $this->enabled = $this->get_option('enabled');
-            $this->id = 'hyperswitch_payment';
+            $this->id = 'hyperswitch_checkout';
             $this->method_title = __('Hyperswitch');
             $this->method_description = __('Allow customers to securely pay via Hyperswitch', 'hyperswitch-checkout');
 
@@ -93,6 +94,7 @@ function hyperswitch_init_payment_class()
             $this->notify_url = home_url('/wc-api/wc_hyperswitch');
 
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+            add_filter('plugin_action_links_' . plugin_basename(__FILE__), [$this, 'plugin_action_links']);
 
             if ($this->enabled == 'yes') {
                 add_action('woocommerce_api_wc_hyperswitch', array($this, 'check_hyperswitch_response'));
@@ -118,7 +120,6 @@ function hyperswitch_init_payment_class()
                 );
                 wp_localize_script('hyperswitch-hyperservice', 'clientdata', $client_data);
                 wp_enqueue_script('hyperswitch-hyperservice');
-
                 add_action("woocommerce_receipt_" . $this->id, array($this, 'receipt_page'));
                 add_action('woocommerce_order_actions', array($this, 'hyperswitch_add_manual_actions'));
                 add_action('woocommerce_order_action_wc_manual_capture_action', array($this, 'hyperswitch_process_manual_capture_action'));
@@ -128,12 +129,20 @@ function hyperswitch_init_payment_class()
             }
         }
 
+        function plugin_action_links($links)
+        {
+            $plugin_links = [
+                '<a href="admin.php?page=wc-settings&tab=checkout&section=hyperswitch_checkout">' . esc_html__('Settings', 'hyperswitch-checkout') . '</a>',
+            ];
+            return array_merge($plugin_links, $links);
+        }
+
         function hyperswitch_thankyou($esc_html__)
         {
             $order_id = wc_get_order_id_by_order_key($_GET['key']);
             $order = wc_get_order($order_id);
             $payment_method = $order->get_payment_method();
-            if ($payment_method == 'hyperswitch_payment') {
+            if ($payment_method == 'hyperswitch_checkout') {
                 $payment_id = $order->get_transaction_id();
                 $paymentResponse = $this->retrieve_payment_intent($payment_id);
                 $status = $paymentResponse['status'];
@@ -177,7 +186,7 @@ function hyperswitch_init_payment_class()
             echo
                 '<div onclick="' .
                 'const paymentMethod = new URLSearchParams(jQuery(\'form.checkout\').serialize()).get(\'payment_method\');' .
-                'if (paymentMethod == \'hyperswitch_payment\') {' .
+                'if (paymentMethod == \'hyperswitch_checkout\') {' .
                 'event.preventDefault();' .
                 'handleHyperswitchAjax();' .
                 '}' .
@@ -702,13 +711,13 @@ function hyperswitch_init_payment_class()
 
             switch ($this->environment) {
                 case "sandbox":
-                    $url = "https://sandbox.juspay.io/godel/analytics";
+                    $url = "https://sandbox.hyperswitch.io/logs/sdk";
                     break;
                 case "production":
-                    $url = "https://api.hyperswitch.io/sdk-logs";
+                    $url = "https://api.hyperswitch.io/logs/sdk";
                     break;
                 default:
-                    $url = "https://sandbox.juspay.io/godel/analytics";
+                    $url = "https://sandbox.hyperswitch.io/logs/sdk";
                     break;
             }
 
@@ -899,7 +908,7 @@ function hyperswitch_init_payment_class()
 
     function hyperswitch_add_payment_class($gateways)
     {
-        $gateways[] = 'Hyperswitch_Payment';
+        $gateways[] = 'Hyperswitch_Checkout';
         return $gateways;
     }
 
@@ -924,7 +933,7 @@ function hyperswitch_create_or_update_payment_intent()
             )
         );
     } else {
-        $hyperswitch = new Hyperswitch_Payment();
+        $hyperswitch = new Hyperswitch_Checkout();
         $order_id = $_POST['order_id'];
         $client_secret = $_POST['client_secret'];
         if (!isset($client_secret)) {
@@ -955,5 +964,12 @@ function hyperswitch_create_or_update_payment_intent()
                 )
             );
         }
+    }
+}
+
+function hyperswitch_declare_compatibility()
+{
+    if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
     }
 }

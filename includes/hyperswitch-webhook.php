@@ -2,7 +2,7 @@
 if (!defined('ABSPATH'))
     exit; // Exit if accessed directly
 
-require_once __DIR__ . '/../hyperswitch-payment.php';
+require_once __DIR__ . '/../hyperswitch-checkout.php';
 
 class Hyperswitch_Webhook
 {
@@ -40,7 +40,7 @@ class Hyperswitch_Webhook
 
     public function __construct()
     {
-        $this->hyperswitch = new Hyperswitch_Payment();
+        $this->hyperswitch = new Hyperswitch_Checkout();
 
     }
 

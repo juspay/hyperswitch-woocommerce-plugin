@@ -2,11 +2,11 @@
 Contributors: hyperswitch, vrishabjuspay
 Tags: woocommerce, hyperswitch, payment, ecommerce, e-commerce, checkout
 Requires at least: 4.0
-Tested up to: 6.4.2
-Stable tag: 1.3.0
+Tested up to: 6.4.3
+Stable tag: 1.4.0
 Requires PHP: 7.0
 WC requires at least: 4.0.0
-WC tested up to: 8.5.1
+WC tested up to: 8.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -149,12 +149,12 @@ Different payment methods across Payment Processors can be enabled/disabled on t
 Our plugin relies on the Hyperswitch hosted service to support its functionality. Specifically, we use the following endpoints for processing payments and logs as part of our internal monitoring process:
 
 * Sandbox Environment *
-https://sandbox.juspay.io/godel/analytics - We utilize this endpoint to collect logs for internal monitoring purposes. These logs play a crucial role in analyzing the performance of our plugin, identifying potential issues, and ensuring the overall reliability of our service. The data collected through this endpoint is used exclusively for internal monitoring and improvement purposes.
+https://sandbox.hyperswitch.io/logs/sdk - We utilize this endpoint to collect logs for internal monitoring purposes. These logs play a crucial role in analyzing the performance of our plugin, identifying potential issues, and ensuring the overall reliability of our service. The data collected through this endpoint is used exclusively for internal monitoring and improvement purposes.
 https://sandbox.hyperswitch.io - This endpoint is employed for securely processing payments. It ensures a seamless and efficient payment experience for our users. The use of this endpoint is exclusively dedicated to handling payment transactions and related processes.
 https://beta.hyperswitch.io/v1/HyperLoader.js - This endpoint is utilized for loading the script required to inject the payment sheet. This process enables the seamless integration of the payment sheet into our plugin, contributing to a user-friendly and efficient payment interface.
 
 * Production Environment *
-https://api.hyperswitch.io/sdk-logs - We utilize this endpoint to collect logs for internal monitoring purposes. These logs play a crucial role in analyzing the performance of our plugin, identifying potential issues, and ensuring the overall reliability of our service. The data collected through this endpoint is used exclusively for internal monitoring and improvement purposes.
+https://api.hyperswitch.io/logs/sdk - We utilize this endpoint to collect logs for internal monitoring purposes. These logs play a crucial role in analyzing the performance of our plugin, identifying potential issues, and ensuring the overall reliability of our service. The data collected through this endpoint is used exclusively for internal monitoring and improvement purposes.
 https://api.hyperswitch.io - This endpoint is employed for securely processing payments. It ensures a seamless and efficient payment experience for our users. The use of this endpoint is exclusively dedicated to handling payment transactions and related processes.
 https://checkout.hyperswitch.io/v0/HyperLoader.js - This endpoint is utilized for loading the script required to inject the payment sheet. This process enables the seamless integration of the payment sheet into our plugin, contributing to a user-friendly and efficient payment interface.
 
