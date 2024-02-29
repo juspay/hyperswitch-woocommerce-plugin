@@ -195,21 +195,25 @@ function renderHyperswitchSDK(client_secret, return_url) {
     layout: layout1,
     wallets: {
       walletReturnUrl: hyperswitchReturnUrl,
-      style: style,
+      style,
     },
     sdkHandleConfirmPayment: false,
-    disableSaveCards: disableSaveCards,
+    disableSaveCards,
     branding: "never",
-    showCardFormByDefault: showCardFormByDefault,
+    showCardFormByDefault,
+    sdkHandleOneClickConfirmPayment: false,
   };
   hyperswitchUnifiedCheckout = hyperswitchWidgets.create(
     "payment",
     hyperswitchUnifiedCheckoutOptions
   );
   hyperswitchUnifiedCheckout.mount("#unified-checkout");
+  hyperswitchUnifiedCheckout.on("oneClickConfirmTriggered", function (event) {
+    handleHyperswitchAjax(true);
+  });
 }
 
-function handleHyperswitchAjax() {
+function handleHyperswitchAjax(isOneClickPaymentMethod = false) {
   jQuery(".woocommerce-error").remove();
   jQuery(".payment_method_hyperswitch_checkout").block(
     hyperswitchLoaderCustomSettings
@@ -250,11 +254,12 @@ function handleHyperswitchAjax() {
             url: "/wp-admin/admin-ajax.php",
             data: payment_intent_data,
             success: function (_msg2) {
-              hyperswitchPaymentHandleSubmit();
+              hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, true);
             },
           });
         }
       } else {
+        hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, false);
         jQuery(".payment_method_hyperswitch_checkout").unblock();
         jQuery(".woocommerce").prepend(msg.messages);
         jQuery([document.documentElement, document.body]).animate(
@@ -284,34 +289,47 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-async function hyperswitchPaymentHandleSubmit() {
-  const { error } = await hyper.confirmPayment({
-    widgets: hyperswitchWidgets,
-    confirmParams: {
-      return_url: hyperswitchReturnUrl,
-    },
-    redirect: "if_required",
-  });
-  if (error) {
-    if (error.type) {
-      if (error.type == "validation_error") {
-        jQuery([document.documentElement, document.body]).animate(
-          {
-            scrollTop: jQuery(
-              ".payment_box.payment_method_hyperswitch_checkout"
-            ).offset().top,
+async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
+  if (result || isOneClickPaymentMethod) {
+    if (!isOneClickPaymentMethod && result) {
+      const { error } = await hyper.confirmPayment({
+        confirmParams: {
+          return_url: hyperswitchReturnUrl,
+        },
+        redirect: "if_required",
+      });
+    } else {
+      const { error } = await hyper.confirmOneClickPayment(
+        {
+          confirmParams: {
+            return_url: hyperswitchReturnUrl,
           },
-          500
-        );
+          redirect: "if_required",
+        },
+        result
+      );
+    }
+    if (error) {
+      if (error.type) {
+        if (error.type == "validation_error") {
+          jQuery([document.documentElement, document.body]).animate(
+            {
+              scrollTop: jQuery(
+                ".payment_box.payment_method_hyperswitch_checkout"
+              ).offset().top,
+            },
+            500
+          );
+        } else {
+          location.href = hyperswitchReturnUrl;
+        }
       } else {
         location.href = hyperswitchReturnUrl;
       }
+      jQuery(".payment_method_hyperswitch_checkout").unblock();
     } else {
       location.href = hyperswitchReturnUrl;
     }
-    jQuery(".payment_method_hyperswitch_checkout").unblock();
-  } else {
-    location.href = hyperswitchReturnUrl;
   }
 }
 
