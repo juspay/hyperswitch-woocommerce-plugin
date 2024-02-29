@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://hyperswitch.io/
- * Version: 1.4.0
+ * Version: 1.5.0
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.4.0');
+define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.5.0');
 define('HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
