@@ -65,7 +65,7 @@ function hyperswitch_init_payment_class()
             $this->init_form_fields();
             $this->init_settings();
 
-            $this->title = __($this->get_option('method_title'), 'hyperswitch-checkout');
+            $this->title = $this->get_option('method_title');
             $this->icon = HYPERSWITCH_PLUGIN_URL . '/assets/images/default.svg';
             $this->plugin_url = HYPERSWITCH_PLUGIN_URL . '/assets/images/';
             $this->environment = $this->get_option('environment');
@@ -207,14 +207,14 @@ function hyperswitch_init_payment_class()
             $intermediate_status = array("pending");
             if ($status == 'succeeded') {
                 $refund->set_refunded_payment(true);
-                $order->add_order_note(__('Refund Successful (Hyperswitch Refund ID: ' . $refund_id . ')', 'hyperswitch-checkout'));
+                $order->add_order_note('Refund Successful (Hyperswitch Refund ID: ' . $refund_id . ')');
             } else if (in_array($status, $intermediate_status)) {
-                $order->add_order_note(__('Refund processing (Hyperswitch Refund ID: ' . $refund_id . ')', 'hyperswitch-checkout'));
+                $order->add_order_note('Refund processing (Hyperswitch Refund ID: ' . $refund_id . ')');
                 $refund->set_refunded_payment(true);
                 $refund->set_status("processing");
             } else {
                 $refund->set_refunded_payment(false);
-                $order->add_order_note(__('Refund failed with error message: ' . $responseObj['error']['message']), 'hyperswitch-checkout');
+                $order->add_order_note('Refund failed with error message: ' . $responseObj['error']['message']);
                 return false;
             }
             $this->post_log("WC_MANUAL_REFUND", $status, $payment_id);
@@ -248,18 +248,18 @@ function hyperswitch_init_payment_class()
             if ($status == 'succeeded') {
                 if ($order->status !== 'processing' && $order->status !== 'refunded') {
                     $order->payment_complete($payment_id);
-                    $order->add_order_note(__('Manual Capture successful (Hyperswitch Payment ID: ' . $payment_id . ')'), 'hyperswitch-checkout');
-                    $order->add_order_note(__('Payment successful via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')'), 'hyperswitch-checkout');
+                    $order->add_order_note('Manual Capture successful (Hyperswitch Payment ID: ' . $payment_id . ')');
+                    $order->add_order_note('Payment successful via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')');
                     $order->update_meta_data('payment_captured', 'yes');
                     $this->post_log("WC_ORDER_PLACED", null, $payment_id);
                 }
             } else if (in_array($status, $intermediate_status)) {
                 $order->update_status($this->processing_payment_order_status);
-                $order->add_order_note(__('Manual Capture processing (Hyperswitch Payment ID: ' . $payment_id . ')'), 'hyperswitch-checkout');
+                $order->add_order_note('Manual Capture processing (Hyperswitch Payment ID: ' . $payment_id . ')');
             } else {
                 $order->update_status($this->processing_payment_order_status);
                 $errorMessage = $responseObj['error']['message'] ?? $responseObj['error_code'] ?? "NA";
-                $order->add_order_note(__('Manual Capture failed (Hyperswitch Payment ID: ' . $payment_id . ') with error message: ' . $errorMessage), 'hyperswitch-checkout');
+                $order->add_order_note('Manual Capture failed (Hyperswitch Payment ID: ' . $payment_id . ') with error message: ' . $errorMessage);
             }
             $this->post_log("WC_MANUAL_CAPTURE", $status, $payment_id);
         }
@@ -271,19 +271,19 @@ function hyperswitch_init_payment_class()
             $status = $responseObj['status'];
             $payment_method = $responseObj['payment_method'];
             $intermediate_status = array("processing", "requires_merchant_action", "requires_customer_action", "requires_confirmation", "requires_capture");
-            $order->add_order_note(__('Synced Payment Status (Hyperswitch Payment ID: ' . $payment_id . ')'), 'hyperswitch-checkout');
+            $order->add_order_note('Synced Payment Status (Hyperswitch Payment ID: ' . $payment_id . ')');
             if ($status == 'succeeded') {
                 if ($order->status !== 'processing' && $order->status !== 'refunded') {
                     $this->post_log("WC_ORDER_PLACED", null, $payment_id);
                 }
                 if ($order->status !== 'refunded') {
-                    $order->add_order_note(__('Payment successful via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')'), 'hyperswitch-checkout');
+                    $order->add_order_note('Payment successful via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')');
                     $order->payment_complete($payment_id);
                 }
             } else if (in_array($status, $intermediate_status)) {
-                $order->add_order_note(__('Payment processing via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')'), 'hyperswitch-checkout');
+                $order->add_order_note('Payment processing via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')');
             } else {
-                $order->add_order_note(__('Payment failed via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')'), 'hyperswitch-checkout');
+                $order->add_order_note('Payment failed via ' . $payment_method . ' (Hyperswitch Payment ID: ' . $payment_id . ')');
             }
             $this->post_log("WC_MANUAL_SYNC", $status, $payment_id);
         }
@@ -414,14 +414,13 @@ function hyperswitch_init_payment_class()
                 $order = new WC_Order($payment_id);
                 $error = $payment_intent['body'];
                 $order->add_order_note(__('Unable to Create Hyperswitch Payment Intent.', 'hyperswitch-checkout'));
-                $order->add_order_note(__('Error: ' . $error), 'hyperswitch-checkout');
+                $order->add_order_note('Error: ' . $error);
                 $this->post_log("WC_FAILED_TO_CREATE_PAYMENT_INTENT", $error);
-                $customer_error_message = "Something went wrong. Please contact support for assistance.";
                 if (function_exists('wc_add_notice')) {
-                    wc_add_notice(__($customer_error_message, 'hyperswitch-checkout'), 'error');
+                    wc_add_notice(__("Something went wrong. Please contact support for assistance.", 'hyperswitch-checkout'), 'error');
 
                 } else {
-                    $woocommerce->add_error(__($customer_error_message, 'hyperswitch-checkout'));
+                    $woocommerce->add_error(__("Something went wrong. Please contact support for assistance.", 'hyperswitch-checkout'));
                     $woocommerce->set_messages();
                 }
                 $redirect_url = get_permalink(woocommerce_get_page_id('cart'));
@@ -456,14 +455,13 @@ function hyperswitch_init_payment_class()
                 $order = new WC_Order($order_id);
                 $error = $payment_intent['body'];
                 $order->add_order_note(__('Unable to Create Hyperswitch Payment Intent.', 'hyperswitch-checkout'));
-                $order->add_order_note(__('Error: ' . $error), 'hyperswitch-checkout');
+                $order->add_order_note('Error: ' . $error);
                 $this->post_log("WC_FAILED_TO_CREATE_PAYMENT_INTENT", $error);
-                $customer_error_message = "Something went wrong. Please contact support for assistance.";
                 if (function_exists('wc_add_notice')) {
-                    wc_add_notice(__($customer_error_message, 'hyperswitch-checkout'), 'error');
+                    wc_add_notice(__("Something went wrong. Please contact support for assistance.", 'hyperswitch-checkout'), 'error');
 
                 } else {
-                    $woocommerce->add_error(__($customer_error_message, 'hyperswitch-checkout'));
+                    $woocommerce->add_error(__("Something went wrong. Please contact support for assistance.", 'hyperswitch-checkout'));
                     $woocommerce->set_messages();
                 }
                 $redirect_url = get_permalink(woocommerce_get_page_id('cart'));
@@ -591,18 +589,8 @@ function hyperswitch_init_payment_class()
                 $customer_id = "cust_" . $customer_id_hash;
             }
 
-            $customer_created = false;
+            $customer_created = true;
             $customer_logged_in = str_starts_with($customer_id, "cust");
-            $enable_saved_payment_methods = $this->enable_saved_payment_methods;
-
-            if ($customer_logged_in && $enable_saved_payment_methods) {
-                if (isset($client_secret)) {
-                    $customer_created = true;
-                } else {
-                    $customerObj = $this->create_customer($customer_id, $customer->display_name, $customer->user_email);
-                    $customer_created = !isset($customerObj['error']);
-                }
-            }
 
             $metadata = array(
                 "customer_created" => $customer_created,
