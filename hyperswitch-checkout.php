@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://hyperswitch.io/
- * Version: 1.5.0
+ * Version: 1.6.0
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.5.0');
+define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.6.0');
 define('HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -42,6 +42,7 @@ add_action('admin_post_nopriv_hyperswitch_wc_webhook', 'hyperswitch_webhook_init
 add_action('wp_ajax_nopriv_hyperswitch_create_or_update_payment_intent', 'hyperswitch_create_or_update_payment_intent', 5);
 add_action('wp_ajax_hyperswitch_create_or_update_payment_intent', 'hyperswitch_create_or_update_payment_intent', 5);
 add_action('before_woocommerce_init', 'hyperswitch_declare_compatibility', 5);
+add_action('woocommerce_blocks_loaded', 'woocommerce_gateway_hyperswitch_woocommerce_block_support');
 
 function hyperswitch_init_payment_class()
 {
@@ -114,7 +115,7 @@ function hyperswitch_init_payment_class()
 
                 wp_register_script(
                     'hyperswitch-hyperservice',
-                    plugins_url('/js/hyperswitch-hyperservice.js', __FILE__),
+                    HYPERSWITCH_PLUGIN_URL . '/js/hyperswitch-hyperservice.js',
                     array('hyperswitch-hyperloader'),
                     'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION'
                 );
@@ -391,9 +392,9 @@ function hyperswitch_init_payment_class()
             );
         }
 
-        function receipt_page($payment_id)
+        function receipt_page($order_id)
         {
-            $payment_intent = $this->create_payment_intent($payment_id);
+            $payment_intent = $this->create_payment_intent($order_id);
             if (isset($payment_intent['clientSecret']) && isset($payment_intent['paymentId'])) {
                 $client_secret = $payment_intent['clientSecret'];
                 $payment_id = $payment_intent['paymentId'];
@@ -411,8 +412,8 @@ function hyperswitch_init_payment_class()
                 ;
             } else {
                 global $woocommerce;
-                $order = new WC_Order($payment_id);
-                $error = $payment_intent['body'];
+                $order = new WC_Order($order_id);
+                $error = $payment_intent['error'];
                 $order->add_order_note(__('Unable to Create Hyperswitch Payment Intent.', 'hyperswitch-checkout'));
                 $order->add_order_note('Error: ' . $error);
                 $this->post_log("WC_FAILED_TO_CREATE_PAYMENT_INTENT", $error);
@@ -453,7 +454,7 @@ function hyperswitch_init_payment_class()
             } else {
                 global $woocommerce;
                 $order = new WC_Order($order_id);
-                $error = $payment_intent['body'];
+                $error = $payment_intent['error'];
                 $order->add_order_note(__('Unable to Create Hyperswitch Payment Intent.', 'hyperswitch-checkout'));
                 $order->add_order_note('Error: ' . $error);
                 $this->post_log("WC_FAILED_TO_CREATE_PAYMENT_INTENT", $error);
@@ -819,10 +820,10 @@ function hyperswitch_init_payment_class()
          **/
         function process_payment($payment_id)
         {
-            $nonce = $_POST['woocommerce-process-checkout-nonce'];
-            if (!wp_verify_nonce($nonce, 'woocommerce-process_checkout')) {
-                return array('result' => 'failure', 'nonce' => 'failed');
-            }
+            // $nonce = $_POST['woocommerce-process-checkout-nonce'];
+            // if (!wp_verify_nonce($nonce, 'woocommerce-process_checkout')) {
+            //     return array('result' => 'failure', 'nonce' => 'failed');
+            // }
             $order = new WC_Order($payment_id);
             return array('result' => 'success', 'redirect' => $order->get_checkout_payment_url(true));
         }
@@ -959,5 +960,19 @@ function hyperswitch_declare_compatibility()
 {
     if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
+    }
+}
+function woocommerce_gateway_hyperswitch_woocommerce_block_support()
+{
+    if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
+        require_once __DIR__ . '/includes/hyperswitch-wc-blocks-support.php';
+        add_action(
+            'woocommerce_blocks_payment_method_type_registration',
+            function (Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
+                $payment_method_registry->register(new Hyperswitch_Checkout_Blocks);
+            },
+            5
+        );
     }
 }
