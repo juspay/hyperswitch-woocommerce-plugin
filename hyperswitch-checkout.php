@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://hyperswitch.io/
- * Version: 1.5.0
+ * Version: 1.5.1
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.5.0');
+define('HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.5.1');
 define('HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -174,7 +174,7 @@ function hyperswitch_init_payment_class()
                         "message" => $msg
                     )
                 );
-                return esc_html__($msg, 'hyperswitch-checkout');
+                return esc_html($msg);
             } else {
                 return $esc_html__;
             }
@@ -335,7 +335,7 @@ function hyperswitch_init_payment_class()
                 'enable_webhook' => array(
                     'title' => __('Enable Webhook', 'hyperswitch-checkout'),
                     'type' => 'checkbox',
-                    'description' => __("Allow webhooks from Hyperswitch to receive real time updates of payments to update orders.<br/><br/><span>$webhookUrl</span><br/><br/>Use this URL to be entered as Webhook URL on Hyperswitch dashboard", 'hyperswitch-checkout'),
+                    'description' => "Allow webhooks from Hyperswitch to receive real time updates of payments to update orders.<br/><br/><span>$webhookUrl</span><br/><br/>Use this URL to be entered as Webhook URL on Hyperswitch dashboard",
                     'label' => __('Enable Hyperswitch Webhook', 'hyperswitch-checkout'),
                     'default' => 'yes'
                 ),
@@ -875,10 +875,10 @@ function hyperswitch_init_payment_class()
 
             if ($msg['class'] != 'success') {
                 if (function_exists('wc_add_notice')) {
-                    wc_add_notice(__($msg['message'], 'hyperswitch-checkout'), $msg['class']);
+                    wc_add_notice($msg['message'], $msg['class']);
 
                 } else {
-                    $woocommerce->add_error(__($msg['message'], 'hyperswitch-checkout'));
+                    $woocommerce->add_error($msg['message']);
                     $woocommerce->set_messages();
                 }
             }
