@@ -818,13 +818,13 @@ function hyperswitch_init_payment_class()
         /**
          * Process the payment and return the result
          **/
-        function process_payment($payment_id)
+        function process_payment($order_id)
         {
             // $nonce = $_POST['woocommerce-process-checkout-nonce'];
             // if (!wp_verify_nonce($nonce, 'woocommerce-process_checkout')) {
             //     return array('result' => 'failure', 'nonce' => 'failed');
             // }
-            $order = new WC_Order($payment_id);
+            $order = new WC_Order($order_id);
             return array('result' => 'success', 'redirect' => $order->get_checkout_payment_url(true));
         }
 

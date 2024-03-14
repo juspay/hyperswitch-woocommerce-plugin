@@ -191,17 +191,28 @@ function renderHyperswitchSDK(client_secret, return_url) {
   var disableSaveCards = !enable_saved_payment_methods;
   var showCardFormByDefault = !!show_card_from_by_default;
 
+  var currentUrl = window.location.href;
+  var regex = /\/checkout\/order-pay/;
+  var containsCheckoutOrderPay = regex.test(currentUrl);
+  var sdkHandlePayments = containsCheckoutOrderPay;
+
   hyperswitchUnifiedCheckoutOptions = {
     layout: layout1,
     wallets: {
       walletReturnUrl: hyperswitchReturnUrl,
       style,
     },
-    sdkHandleConfirmPayment: false,
+    sdkHandleConfirmPayment: {
+      handleConfirm: sdkHandlePayments,
+      buttonText: "Pay Now",
+      confirmParams: {
+        return_url: hyperswitchReturnUrl,
+      },
+    },
     disableSaveCards,
     branding: "never",
     showCardFormByDefault,
-    sdkHandleOneClickConfirmPayment: false,
+    sdkHandleOneClickConfirmPayment: sdkHandlePayments,
   };
   hyperswitchUnifiedCheckout = hyperswitchWidgets.create(
     "payment",
