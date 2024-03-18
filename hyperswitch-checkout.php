@@ -114,7 +114,7 @@ function hyperswitch_init_payment_class() {
 					'hyperswitch-hyperservice',
 					HYPERSWITCH_PLUGIN_URL . '/js/hyperswitch-hyperservice.js',
 					array( 'hyperswitch-hyperloader' ),
-					'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION'
+					HYPERSWITCH_CHECKOUT_PLUGIN_VERSION
 				);
 				wp_localize_script( 'hyperswitch-hyperservice', 'clientdata', $client_data );
 				wp_enqueue_script( 'hyperswitch-hyperservice' );
