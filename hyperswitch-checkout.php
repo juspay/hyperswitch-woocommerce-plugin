@@ -68,7 +68,7 @@ function hyperswitch_init_payment_class() {
 			$this->plugin_url = HYPERSWITCH_PLUGIN_URL . '/assets/images/';
 			$this->environment = $this->get_option( 'environment' );
 			$this->enable_saved_payment_methods = $this->get_option( 'enable_saved_payment_methods' ) === 'yes';
-			$this->show_card_from_by_default = $this->get_option( 'show_card_from_by_default' ) === 'yes';
+			$this->show_card_form_by_default = $this->get_option( 'show_card_form_by_default' ) === 'yes';
 			$this->supports = [ 
 				'products',
 				'refunds'
@@ -102,7 +102,7 @@ function hyperswitch_init_payment_class() {
 					'appearance_obj' => $this->get_option( 'appearance' ),
 					'layout' => $this->get_option( 'layout' ),
 					'enable_saved_payment_methods' => $this->get_option( 'enable_saved_payment_methods' ) === 'yes',
-					'show_card_from_by_default' => $this->get_option( 'show_card_from_by_default' ) === 'yes',
+					'show_card_form_by_default' => $this->get_option( 'show_card_form_by_default' ) === 'yes',
 					'endpoint' => $this->hyperswitch_url,
 					'plugin_url' => $this->plugin_url,
 					'plugin_version' => HYPERSWITCH_CHECKOUT_PLUGIN_VERSION,
@@ -347,7 +347,7 @@ function hyperswitch_init_payment_class() {
 					'label' => __( 'Enable Saved Payment Methods', 'hyperswitch-checkout' ),
 					'default' => 'yes'
 				),
-				'show_card_from_by_default' => array(
+				'show_card_form_by_default' => array(
 					'title' => __( 'Show Card Form Always', 'hyperswitch-checkout' ),
 					'type' => 'checkbox',
 					'label' => __( 'Show Card Form before Payment Methods List has loaded', 'hyperswitch-checkout' ),

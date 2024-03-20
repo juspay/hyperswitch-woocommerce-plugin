@@ -55,7 +55,7 @@ function renderHyperswitchSDK(client_secret, return_url) {
     appearance_obj,
     layout,
     enable_saved_payment_methods,
-    show_card_from_by_default,
+    show_card_form_by_default,
     endpoint,
     plugin_url,
     plugin_version,
@@ -179,12 +179,11 @@ function renderHyperswitchSDK(client_secret, return_url) {
   };
 
   var disableSaveCards = !enable_saved_payment_methods;
-  var showCardFormByDefault = !!show_card_from_by_default;
+  var showCardFormByDefault = !!show_card_form_by_default;
 
   var currentUrl = window.location.href;
   var regex = /\/checkout\/order-pay/;
-  var containsCheckoutOrderPay = regex.test(currentUrl);
-  var sdkHandlePayments = containsCheckoutOrderPay;
+  var sdkHandlePayments = regex.test(currentUrl);
 
   hyperswitchUnifiedCheckoutOptions = {
     layout: layout1,
