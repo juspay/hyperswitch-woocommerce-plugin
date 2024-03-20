@@ -180,7 +180,7 @@ function hyperswitch_init_payment_class() {
 			// not escaping here as the only variable is $button_html which is returned by default even otherwise
 			echo
 				'<div onclick="' .
-				'const paymentMethod = new URLSearchParams(jQuery(\'form.checkout\').serialize()).get(\'payment_method\');' .
+				'var paymentMethod = new URLSearchParams(jQuery(\'form.checkout\').serialize()).get(\'payment_method\');' .
 				'if (paymentMethod == \'hyperswitch_checkout\') {' .
 				'event.preventDefault();' .
 				'handleHyperswitchAjax();' .
