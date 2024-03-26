@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('HYPERSWITCH_WC_VERSION', '1.1.9');
+define('HYPERSWITCH_WC_VERSION', '1.1.15');
 define('WC_HYPERSWITCH_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -78,16 +78,16 @@ function hyperswitch_init_payment_class()
             $this->processing_payment_order_status = $this->get_option('hold_order') === 'yes' ? 'on-hold' : 'pending';
             switch ($this->environment) {
                 case "sandbox":
-                    $this->hyperswitch_url = 'https://sandbox.hyperswitch.io';
-                    $script_url = 'https://beta.hyperswitch.io/v1/HyperLoader.js';
+                    $this->hyperswitch_url = 'https://sandbox.singularitytools.net';
+                    $script_url = 'https://checkout.singularitytools.net/sandbox/HyperLoader.js';
                     break;
                 case "production":
-                    $this->hyperswitch_url = 'https://api.hyperswitch.io';
-                    $script_url = 'https://checkout.hyperswitch.io/v0/HyperLoader.js';
+                    $this->hyperswitch_url = 'https://api.juspayswitch.com';
+                    $script_url = 'https://checkout.singularitytools.net/HyperLoader.js';
                     break;
                 default:
-                    $this->hyperswitch_url = 'https://sandbox.hyperswitch.io';
-                    $script_url = 'https://beta.hyperswitch.io/v1/HyperLoader.js';
+                    $this->hyperswitch_url = 'https://sandbox.singularitytools.net';
+                    $script_url = 'https://checkout.singularitytools.net/sandbox/HyperLoader.js';
                     break;
             }
 
