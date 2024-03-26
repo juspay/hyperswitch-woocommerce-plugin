@@ -1,1 +1,0 @@
-zip hyperswitch-woocommerce-plugin ../hyperswitch-woocommerce-plugin

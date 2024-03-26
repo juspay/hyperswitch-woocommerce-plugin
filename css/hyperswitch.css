@@ -17,11 +17,11 @@ form#payment-form {
 	margin-bottom: 10px;
 }
 
-label[for="payment_method_hyperswitch_payment"] {
+label[for="payment_method_hyperswitch_checkout"] {
 	display: none;
 }
 
-.payment_box.payment_method_hyperswitch_payment * {
+.payment_box.payment_method_hyperswitch_checkout * {
 	transition: all 0.5s ease;
 }
 
@@ -35,7 +35,7 @@ label[for="payment_method_hyperswitch_payment"] {
 	}
 }
 
-#payment ul li.wc_payment_method.payment_method_hyperswitch_payment label img {
+#payment ul li.wc_payment_method.payment_method_hyperswitch_checkout label img {
 	max-width: 2em;
 	max-height: 1.5em;
 }
