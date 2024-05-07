@@ -2,7 +2,7 @@
 Contributors: vrishabjuspay
 Tags: woocommerce, hyperswitch, payment, e-commerce, checkout
 Requires at least: 4.0
-Tested up to: 6.4.3
+Tested up to: 6.5.3
 Stable tag: 1.6.0
 Requires PHP: 7.0
 WC requires at least: 4.0.0
