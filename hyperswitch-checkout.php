@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://hyperswitch.io/
- * Version: 1.5.1
+ * Version: 1.6.0
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.5.1' );
+define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.6.0' );
 define( 'HYPERSWITCH_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -382,7 +382,7 @@ function hyperswitch_init_payment_class() {
 
 		function receipt_page( $payment_id ) {
 			$payment_intent = $this->create_payment_intent( $payment_id );
-			if ( isset ( $payment_intent['clientSecret'] ) && isset ( $payment_intent['paymentId'] ) ) {
+			if ( isset( $payment_intent['clientSecret'] ) && isset( $payment_intent['paymentId'] ) ) {
 				$client_secret = $payment_intent['clientSecret'];
 				$payment_id = $payment_intent['paymentId'];
 				$this->post_log( "WC_PAYMENT_INTENT_CREATED", null, $payment_id );
@@ -419,7 +419,7 @@ function hyperswitch_init_payment_class() {
 
 		function render_payment_sheet( $order_id, $client_secret = null ) {
 			$payment_intent = $this->create_payment_intent( $order_id, $client_secret );
-			if ( isset ( $payment_intent['clientSecret'] ) && isset ( $payment_intent['paymentId'] ) ) {
+			if ( isset( $payment_intent['clientSecret'] ) && isset( $payment_intent['paymentId'] ) ) {
 				$client_secret = $payment_intent['clientSecret'];
 				$payment_id = $payment_intent['paymentId'];
 				$this->post_log( "WC_PAYMENT_INTENT_CREATED", null, $payment_id );
@@ -463,7 +463,7 @@ function hyperswitch_init_payment_class() {
 			$order = wc_get_order( $order_id );
 			$apiKey = $this->get_option( 'api_key' );
 			$publishable_key = $this->get_option( 'publishable_key' );
-			if ( isset ( $client_secret ) ) {
+			if ( isset( $client_secret ) ) {
 				$payment_id = "";
 				$parts = explode( "_secret", $client_secret );
 				if ( count( $parts ) === 2 ) {
@@ -617,9 +617,9 @@ function hyperswitch_init_payment_class() {
 
 			// Parse the 'client_secret' key from the response
 			$responseData = json_decode( $response, true );
-			$clientSecret = isset ( $responseData['client_secret'] ) ? $responseData['client_secret'] : null;
-			$paymentId = isset ( $responseData['payment_id'] ) ? $responseData['payment_id'] : null;
-			$error = isset ( $responseData['error'] ) ? $responseData['error'] : null;
+			$clientSecret = isset( $responseData['client_secret'] ) ? $responseData['client_secret'] : null;
+			$paymentId = isset( $responseData['payment_id'] ) ? $responseData['payment_id'] : null;
+			$error = isset( $responseData['error'] ) ? $responseData['error'] : null;
 			return array(
 				"clientSecret" => $clientSecret,
 				"paymentId" => $paymentId,
@@ -709,11 +709,11 @@ function hyperswitch_init_payment_class() {
 				"timestamp" => floor( microtime( true ) * 1000 ) . ""
 			);
 
-			if ( isset ( $payment_id ) ) {
+			if ( isset( $payment_id ) ) {
 				$payload["payment_id"] = $payment_id;
 			}
 
-			if ( isset ( $value ) ) {
+			if ( isset( $value ) ) {
 				$payload["value"] = $value;
 			}
 
@@ -900,7 +900,7 @@ function hyperswitch_create_or_update_payment_intent() {
 		$hyperswitch = new Hyperswitch_Checkout();
 		$order_id = $_POST['order_id'];
 		$client_secret = $_POST['client_secret'];
-		if ( ! isset ( $client_secret ) ) {
+		if ( ! isset( $client_secret ) ) {
 			$hyperswitch->post_log( "WC_ORDER_CREATE", null, $order_id );
 		} else {
 			$payment_id = "";
@@ -911,7 +911,7 @@ function hyperswitch_create_or_update_payment_intent() {
 			$hyperswitch->post_log( "WC_ORDER_UPDATE", $payment_id, $order_id );
 		}
 		$payment_sheet = $hyperswitch->render_payment_sheet( $order_id, $client_secret );
-		if ( isset ( $payment_sheet['payment_sheet'] ) ) {
+		if ( isset( $payment_sheet['payment_sheet'] ) ) {
 			$hyperswitch->post_log( "WC_CHECKOUT_INITIATED", $order_id, $order_id );
 			wp_send_json(
 				array(
