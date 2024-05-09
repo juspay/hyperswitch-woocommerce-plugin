@@ -75,16 +75,16 @@ function hyperswitch_init_payment_class() {
 			$this->processing_payment_order_status = $this->get_option( 'hold_order' ) === 'yes' ? 'on-hold' : 'pending';
 			switch ( $this->environment ) {
 				case "sandbox":
-					$this->hyperswitch_url = 'https://sandbox.singularitytools.net';
-					$script_url = 'https://checkout.sandbox.singularitytools.net/HyperLoader.js';
+					$this->hyperswitch_url = 'https://sandbox.hyperswitch.io';
+					$script_url = 'https://beta.hyperswitch.io/v1/HyperLoader.js';
 					break;
 				case "production":
-					$this->hyperswitch_url = 'https://api.singularitytools.net';
-					$script_url = 'https://checkout.singularitytools.net/HyperLoader.js';
+					$this->hyperswitch_url = 'https://api.hyperswitch.io';
+					$script_url = 'https://checkout.hyperswitch.io/v0/HyperLoader.js';
 					break;
 				default:
-					$this->hyperswitch_url = 'https://sandbox.singularitytools.net';
-					$script_url = 'https://checkout.sandbox.singularitytools.net/HyperLoader.js';
+					$this->hyperswitch_url = 'https://sandbox.hyperswitch.io';
+					$script_url = 'https://beta.hyperswitch.io/v1/HyperLoader.js';
 					break;
 			}
 
