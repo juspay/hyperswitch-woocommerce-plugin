@@ -411,7 +411,7 @@ function hyperswitch_init_payment_class() {
 					$woocommerce->add_error( __( "Something went wrong. Please contact support for assistance.", 'hyperswitch-checkout' ) );
 					$woocommerce->set_messages();
 				}
-				$redirect_url = get_permalink( woocommerce_get_page_id( 'cart' ) );
+				$redirect_url = get_permalink( wc_get_page_id( 'cart' ) );
 				wp_redirect( $redirect_url );
 				exit;
 			}
