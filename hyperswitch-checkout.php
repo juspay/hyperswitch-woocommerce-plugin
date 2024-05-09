@@ -76,7 +76,7 @@ function hyperswitch_init_payment_class() {
 			switch ( $this->environment ) {
 				case "sandbox":
 					$this->hyperswitch_url = 'https://sandbox.singularitytools.net';
-					$script_url = 'https://checkout.singularitytools.net/sandbox/HyperLoader.js';
+					$script_url = 'https://checkout.sandbox.singularitytools.net/HyperLoader.js';
 					break;
 				case "production":
 					$this->hyperswitch_url = 'https://api.singularitytools.net';
@@ -84,7 +84,7 @@ function hyperswitch_init_payment_class() {
 					break;
 				default:
 					$this->hyperswitch_url = 'https://sandbox.singularitytools.net';
-					$script_url = 'https://checkout.singularitytools.net/sandbox/HyperLoader.js';
+					$script_url = 'https://checkout.sandbox.singularitytools.net/HyperLoader.js';
 					break;
 			}
 
@@ -579,8 +579,8 @@ function hyperswitch_init_payment_class() {
 			$customer_logged_in = str_starts_with( $customer_id, "cust" );
 
 			$metadata = array(
-				"customer_created" => $customer_created,
-				"customer_logged_in" => $customer_logged_in,
+				"customer_created" => $customer_created ? "true" : "false",
+				"customer_logged_in" => $customer_logged_in ? "true" : "false",
 			);
 
 			if ( $order ) {
