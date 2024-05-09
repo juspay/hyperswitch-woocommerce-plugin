@@ -48,6 +48,7 @@ var hyperswitchUpdatePaymentIntentLock = false;
 var hyperswitchLastUpdatedFormData = "";
 var hyperswitchPublishableKey;
 var endpoint;
+var locale;
 
 function renderHyperswitchSDK(client_secret, return_url) {
   var {
@@ -55,6 +56,7 @@ function renderHyperswitchSDK(client_secret, return_url) {
     appearance_obj,
     layout,
     enable_saved_payment_methods,
+    locale,
     show_card_from_by_default,
     endpoint,
     plugin_url,
@@ -100,14 +102,9 @@ function renderHyperswitchSDK(client_secret, return_url) {
       pmt_set = Array.from(pmt_set);
       var i = 0;
       setInterval(function () {
-        jQuery(
-          ".wc_payment_method.payment_method_hyperswitch_checkout label img"
-        )
+        jQuery(".wc_payment_method.payment_method_hyperswitch_checkout label img")
           .css("opacity", 0)
-          .attr(
-            "src",
-            plugin_url + pmt_set[i] + ".svg?version=" + plugin_version
-          )
+          .attr("src", plugin_url + pmt_set[i] + ".svg?version=" + plugin_version)
           .attr("alt", pmt_set[i])
           .animate({ opacity: 1 }, "slow");
         i++;
@@ -142,9 +139,7 @@ function renderHyperswitchSDK(client_secret, return_url) {
     variables.colorText = colorText;
   }
   if (!variables.colorTextSecondary) {
-    var colorTextSecondary = jQuery("#payment, #payment-form, body").css(
-      "color"
-    );
+    var colorTextSecondary = jQuery("#payment, #payment-form, body").css("color");
     variables.colorTextSecondary = colorStringToHex(colorTextSecondary) + "B3";
   }
   if (!variables.colorPrimaryText) {
@@ -152,11 +147,8 @@ function renderHyperswitchSDK(client_secret, return_url) {
     variables.colorPrimaryText = colorPrimaryText;
   }
   if (!variables.colorTextPlaceholder) {
-    var colorTextPlaceholder = jQuery("#payment, #payment-form, body").css(
-      "color"
-    );
-    variables.colorTextPlaceholder =
-      colorStringToHex(colorTextPlaceholder) + "50";
+    var colorTextPlaceholder = jQuery("#payment, #payment-form, body").css("color");
+    variables.colorTextPlaceholder = colorStringToHex(colorTextPlaceholder) + "50";
   }
   if (!variables.borderColor) {
     var borderColor = jQuery("#payment, #payment-form, body").css("color");
@@ -169,7 +161,7 @@ function renderHyperswitchSDK(client_secret, return_url) {
 
   appearance.variables = variables;
 
-  hyperswitchWidgets = hyper.widgets({ appearance, clientSecret });
+  hyperswitchWidgets = hyper.widgets({ appearance, clientSecret, locale });
 
   if (checkWcHexIsLight(colorStringToHex(variables.colorBackground))) {
     theme = "dark";
@@ -215,9 +207,7 @@ function renderHyperswitchSDK(client_secret, return_url) {
 
 function handleHyperswitchAjax(isOneClickPaymentMethod = false) {
   jQuery(".woocommerce-error").remove();
-  jQuery(".payment_method_hyperswitch_checkout").block(
-    hyperswitchLoaderCustomSettings
-  );
+  jQuery(".payment_method_hyperswitch_checkout").block(hyperswitchLoaderCustomSettings);
   clientSecret = jQuery("#payment-form").data("client-secret");
   request = jQuery.ajax({
     type: "post",
@@ -237,9 +227,9 @@ function handleHyperswitchAjax(isOneClickPaymentMethod = false) {
             }
           }
         }
-        var nonce = new URLSearchParams(
-          jQuery("form.checkout").serialize()
-        ).get("woocommerce-process-checkout-nonce");
+        var nonce = new URLSearchParams(jQuery("form.checkout").serialize()).get(
+          "woocommerce-process-checkout-nonce"
+        );
         var payment_intent_data = {
           action: "hyperswitch_create_or_update_payment_intent",
           order_id: order_id,
@@ -275,9 +265,7 @@ function handleHyperswitchAjax(isOneClickPaymentMethod = false) {
 
 document.addEventListener("DOMContentLoaded", () => {
   jQuery("form.checkout, form.checkout_coupon").on("change", function (event) {
-    paymentMethod = new URLSearchParams(
-      jQuery("form.checkout").serialize()
-    ).get("payment_method");
+    paymentMethod = new URLSearchParams(jQuery("form.checkout").serialize()).get("payment_method");
     clientSecret = jQuery("#payment-form").data("client-secret");
     // Ignore when other payment method selected, default behaviour is not affected
     if (paymentMethod === "hyperswitch_checkout" || clientSecret == null) {
@@ -314,9 +302,7 @@ async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
         if (error.type == "validation_error") {
           jQuery([document.documentElement, document.body]).animate(
             {
-              scrollTop: jQuery(
-                ".payment_box.payment_method_hyperswitch_checkout"
-              ).offset().top,
+              scrollTop: jQuery(".payment_box.payment_method_hyperswitch_checkout").offset().top,
             },
             500
           );
@@ -336,9 +322,7 @@ async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
 function updatePaymentIntent(inputChangeId) {
   if (!hyperswitchUpdatePaymentIntentLock) {
     hyperswitchUpdatePaymentIntentLock = true;
-    jQuery(".payment_method_hyperswitch_checkout").block(
-      hyperswitchLoaderCustomSettings
-    );
+    jQuery(".payment_method_hyperswitch_checkout").block(hyperswitchLoaderCustomSettings);
     var formData = jQuery("form.checkout").serialize();
     var forceIntentUpdate = inputChangeId.indexOf("country") !== -1;
     clientSecret = jQuery("#payment-form").data("client-secret");
@@ -358,33 +342,24 @@ function updatePaymentIntent(inputChangeId) {
         url: "/wp-admin/admin-ajax.php",
         data: payment_intent_data,
         success: function (msg2) {
-          if (
-            clientSecret == null ||
-            (msg2.payment_sheet && forceIntentUpdate)
-          ) {
+          if (clientSecret == null || (msg2.payment_sheet && forceIntentUpdate)) {
             jQuery(".payment_box.payment_method_hyperswitch_checkout")
               .html(msg2.payment_sheet)
               .addClass("payment_sheet");
           }
-          jQuery(".payment_method_hyperswitch_checkout").unblock(
-            hyperswitchLoaderCustomSettings
-          );
+          jQuery(".payment_method_hyperswitch_checkout").unblock(hyperswitchLoaderCustomSettings);
           hyperswitchUpdatePaymentIntentLock = false;
           jQuery(".woocommerce-error").remove();
           hyperswitchLastUpdatedFormData = formData;
         },
         error: function (_error) {
-          jQuery(".payment_method_hyperswitch_checkout").unblock(
-            hyperswitchLoaderCustomSettings
-          );
+          jQuery(".payment_method_hyperswitch_checkout").unblock(hyperswitchLoaderCustomSettings);
           hyperswitchUpdatePaymentIntentLock = false;
         },
       });
     } else {
       jQuery(".woocommerce-error").remove();
-      jQuery(".payment_method_hyperswitch_checkout").unblock(
-        hyperswitchLoaderCustomSettings
-      );
+      jQuery(".payment_method_hyperswitch_checkout").unblock(hyperswitchLoaderCustomSettings);
       hyperswitchUpdatePaymentIntentLock = false;
     }
   }
@@ -448,10 +423,7 @@ function colorStringToHex(colorString) {
 }
 
 function checkMultiplePaymentMethods() {
-  if (
-    jQuery(".wc_payment_methods.payment_methods.methods .wc_payment_method")
-      .length > 1
-  ) {
+  if (jQuery(".wc_payment_methods.payment_methods.methods .wc_payment_method").length > 1) {
     if (jQuery('label[for="payment_method_hyperswitch_checkout"]').length) {
       jQuery('label[for="payment_method_hyperswitch_checkout"]').css({
         display: "inline",
@@ -462,7 +434,4 @@ function checkMultiplePaymentMethods() {
 function stopCheckMultiplePaymentMethods() {
   clearInterval(checkMultiplePaymentMethodsInterval);
 }
-const checkMultiplePaymentMethodsInterval = setInterval(
-  checkMultiplePaymentMethods,
-  500
-);
+const checkMultiplePaymentMethodsInterval = setInterval(checkMultiplePaymentMethods, 500);

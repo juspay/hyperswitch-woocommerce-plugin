@@ -3,7 +3,7 @@ Contributors: vrishabjuspay
 Tags: woocommerce, hyperswitch, payment, e-commerce, checkout
 Requires at least: 4.0
 Tested up to: 6.5.3
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 7.0
 WC requires at least: 4.0.0
 WC tested up to: 8.6.1
@@ -124,6 +124,11 @@ Absolutely nothing! The Hyperswitch plugin is free to use, and does not add any 
 Different payment methods across Payment Processors can be enabled/disabled on the Hyperswitch Dashboard.
 
 == Changelog ==
+= 1.7.0 =
+   *Release Date - 09 May 2024*
+
+   * Added locale support
+
 = 1.6.0 =
    *Release Date - 07 May 2024*
 

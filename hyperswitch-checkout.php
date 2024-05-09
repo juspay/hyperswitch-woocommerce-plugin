@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://hyperswitch.io/
- * Version: 1.6.0
+ * Version: 1.7.0
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.6.0' );
+define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.7.0' );
 define( 'HYPERSWITCH_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -67,6 +67,7 @@ function hyperswitch_init_payment_class() {
 			$this->plugin_url = HYPERSWITCH_PLUGIN_URL . '/assets/images/';
 			$this->environment = $this->get_option( 'environment' );
 			$this->enable_saved_payment_methods = $this->get_option( 'enable_saved_payment_methods' ) === 'yes';
+			$this->locale = $this->get_option( 'locale' );
 			$this->show_card_from_by_default = $this->get_option( 'show_card_from_by_default' ) === 'yes';
 			$this->supports = [ 
 				'products',
@@ -101,6 +102,7 @@ function hyperswitch_init_payment_class() {
 					'appearance_obj' => $this->get_option( 'appearance' ),
 					'layout' => $this->get_option( 'layout' ),
 					'enable_saved_payment_methods' => $this->get_option( 'enable_saved_payment_methods' ) === 'yes',
+					'locale' => $this->locale,
 					'show_card_from_by_default' => $this->get_option( 'show_card_from_by_default' ) === 'yes',
 					'endpoint' => $this->hyperswitch_url,
 					'plugin_url' => $this->plugin_url,
@@ -305,6 +307,31 @@ function hyperswitch_init_payment_class() {
 						'sandbox' => __( 'Sandbox', 'hyperswitch-checkout' ),
 					),
 					'default' => 'sandbox',
+				),
+				'locale' => array(
+					'title' => __( 'Laguage' ),
+					'label' => __( 'Select Language' ),
+					'type' => 'select',
+					'options' => array(
+						'auto' => __( 'Auto', 'hyperswitch-checkout' ),
+						'en' => __( 'English', 'hyperswitch-checkout' ),
+						'es' => __( 'Spanish', 'hyperswitch-checkout' ),
+						'fr' => __( 'French', 'hyperswitch-checkout' ),
+						'ar' => __( 'Arabic', 'hyperswitch-checkout' ),
+						'ru' => __( 'Russian', 'hyperswitch-checkout' ),
+						'pt' => __( 'Portuguese', 'hyperswitch-checkout' ),
+						'ja' => __( 'Japanese', 'hyperswitch-checkout' ),
+						'de' => __( 'German', 'hyperswitch-checkout' ),
+						'it' => __( 'Italian', 'hyperswitch-checkout' ),
+						'pl' => __( 'Polish', 'hyperswitch-checkout' ),
+						'nl' => __( 'Dutch', 'hyperswitch-checkout' ),
+						'sv' => __( 'Swedish', 'hyperswitch-checkout' ),
+						'en-GB' => __( 'English (UK)', 'hyperswitch-checkout' ),
+						'fr-BE' => __( 'French (Belgium)', 'hyperswitch-checkout' ),
+						'ca' => __( 'Catalan', 'hyperswitch-checkout' ),
+						'he' => __( 'Hebrew', 'hyperswitch-checkout' ),
+					),
+					'default' => 'auto',
 				),
 				'api_key' => array(
 					'title' => 'Api Key',
