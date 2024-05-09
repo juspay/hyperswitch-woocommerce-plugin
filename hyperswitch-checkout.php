@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://hyperswitch.io/
- * Version: 1.6.0
+ * Version: 1.6.1
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.6.0' );
+define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.6.1' );
 define( 'HYPERSWITCH_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -321,6 +321,11 @@ function hyperswitch_init_payment_class() {
 					'type' => 'password',
 					'description' => __( 'Find this on Developers > API Keys section of Hyperswitch Dashboard', 'hyperswitch-checkout' )
 				),
+				'profile_id' => array(
+					'title' => 'Business Profile ID',
+					'type' => 'text',
+					'description' => __( 'Find this on Settings > Business profiles section of Hyperswitch Dashboard', 'hyperswitch-checkout' )
+				),
 				'enable_webhook' => array(
 					'title' => __( 'Enable Webhook', 'hyperswitch-checkout' ),
 					'type' => 'checkbox',
@@ -462,6 +467,7 @@ function hyperswitch_init_payment_class() {
 			global $woocommerce;
 			$order = wc_get_order( $order_id );
 			$apiKey = $this->get_option( 'api_key' );
+			$profileId = $this->get_option( 'profile_id' );
 			$publishable_key = $this->get_option( 'publishable_key' );
 			if ( isset( $client_secret ) ) {
 				$payment_id = "";
@@ -599,6 +605,9 @@ function hyperswitch_init_payment_class() {
 			$payload["capture_method"] = $capture_method;
 			$payload["amount"] = $amount;
 			$payload["currency"] = $currency;
+			if ( isset( $profileId ) ) {
+				$payload["profile_id"] = $profileId;
+			}
 
 			$args = array(
 				'body' => wp_json_encode( $payload ),
