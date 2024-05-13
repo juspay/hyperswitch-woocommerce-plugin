@@ -291,6 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
   if (result || isOneClickPaymentMethod) {
+    let err;
     if (!isOneClickPaymentMethod && result) {
       const { error } = await hyper.confirmPayment({
         confirmParams: {
@@ -298,6 +299,7 @@ async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
         },
         redirect: "if_required",
       });
+      err = error;
     } else {
       const { error } = await hyper.confirmOneClickPayment(
         {
@@ -308,10 +310,11 @@ async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
         },
         result
       );
+      err = error;
     }
-    if (error) {
-      if (error.type) {
-        if (error.type == "validation_error") {
+    if (err) {
+      if (err.type) {
+        if (err.type == "validation_error") {
           jQuery([document.documentElement, document.body]).animate(
             {
               scrollTop: jQuery(
