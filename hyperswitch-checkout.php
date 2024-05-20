@@ -5,7 +5,7 @@
  * Description: Hyperswitch checkout plugin for WooCommerce
  * Author: Hyperswitch
  * Author URI: https://hyperswitch.io/
- * Version: 1.6.1
+ * Version: 1.6.2
  * License: GPLv2 or later
  *
  * WC requires at least: 4.0.0
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.6.1' );
+define( 'HYPERSWITCH_CHECKOUT_PLUGIN_VERSION', '1.6.2' );
 define( 'HYPERSWITCH_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
@@ -136,43 +136,44 @@ function hyperswitch_init_payment_class() {
 		function hyperswitch_thankyou( $esc_html__ ) {
 			$order_id = wc_get_order_id_by_order_key( $_GET['key'] );
 			$order = wc_get_order( $order_id );
-			$payment_method = $order->get_payment_method();
-			if ( $payment_method == 'hyperswitch_checkout' ) {
-				$payment_id = $order->get_transaction_id();
-				$paymentResponse = $this->retrieve_payment_intent( $payment_id );
-				$status = $paymentResponse['status'];
-				$pm = $paymentResponse['payment_method'];
-				$pmt = $paymentResponse['payment_method_type'];
-				$intermediate_status = array( "processing", "requires_merchant_action", "requires_customer_action", "requires_confirmation", "requires_capture" );
-				$msg = $esc_html__;
+			if ( $order ) {
+				$payment_method = $order->get_payment_method();
+				if ( $payment_method == 'hyperswitch_checkout' ) {
+					$payment_id = $order->get_transaction_id();
+					$paymentResponse = $this->retrieve_payment_intent( $payment_id );
+					$status = $paymentResponse['status'];
+					$pm = $paymentResponse['payment_method'];
+					$pmt = $paymentResponse['payment_method_type'];
+					$intermediate_status = array( "processing", "requires_merchant_action", "requires_customer_action", "requires_confirmation", "requires_capture" );
+					$msg = $esc_html__;
 
-				global $woocommerce;
-				if ( $status == 'succeeded' ) {
-					$woocommerce->cart->empty_cart();
-				} else if ( in_array( $status, $intermediate_status ) ) {
-					if ( $status == 'requires_capture' ) {
-						$msg = "Thank you for shopping with us. Please note that your payment has been authorized and can now be captured by the merchant. Kindly check the status of your order after some time.";
+					global $woocommerce;
+					if ( $status == 'succeeded' ) {
+						$woocommerce->cart->empty_cart();
+					} else if ( in_array( $status, $intermediate_status ) ) {
+						if ( $status == 'requires_capture' ) {
+							$msg = "Thank you for shopping with us. Please note that your payment has been authorized and can now be captured by the merchant. Kindly check the status of your order after some time.";
+						} else {
+							$msg = "Thank you for shopping with us. Please note that your payment is currently being processed. Kindly check the status of your order after some time.";
+						}
+						$woocommerce->cart->empty_cart();
 					} else {
-						$msg = "Thank you for shopping with us. Please note that your payment is currently being processed. Kindly check the status of your order after some time.";
+						$msg = "Thank you for shopping with us. However, the payment has failed. Please retry the payment.";
 					}
-					$woocommerce->cart->empty_cart();
-				} else {
-					$msg = "Thank you for shopping with us. However, the payment has failed. Please retry the payment.";
+					$this->post_log(
+						"WC_THANK_YOU_MESSAGE",
+						array(
+							"payment_method" => $pm,
+							"payment_method_type" => $pmt,
+							"order_id" => $order_id,
+							"payment_id" => $payment_id,
+							"message" => $msg
+						)
+					);
+					return esc_html( $msg );
 				}
-				$this->post_log(
-					"WC_THANK_YOU_MESSAGE",
-					array(
-						"payment_method" => $pm,
-						"payment_method_type" => $pmt,
-						"order_id" => $order_id,
-						"payment_id" => $payment_id,
-						"message" => $msg
-					)
-				);
-				return esc_html( $msg );
-			} else {
-				return $esc_html__;
 			}
+			return $esc_html__;
 		}
 
 		function place_order_custom_button( $button_html ) {
