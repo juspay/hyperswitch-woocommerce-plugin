@@ -290,50 +290,54 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
-  if (result || isOneClickPaymentMethod) {
-    let err;
-    if (!isOneClickPaymentMethod && result) {
-      const { error } = await hyper.confirmPayment({
-        confirmParams: {
-          return_url: hyperswitchReturnUrl,
-        },
+  if (!result && !isOneClickPaymentMethod) return;
+
+  let error;
+
+  if (!isOneClickPaymentMethod && result) {
+    const response = await hyper.confirmPayment({
+      confirmParams: { return_url: hyperswitchReturnUrl },
+      redirect: "if_required",
+    });
+    error = response.error;
+  } else {
+    const response = await hyper.confirmOneClickPayment(
+      {
+        confirmParams: { return_url: hyperswitchReturnUrl },
         redirect: "if_required",
-      });
-      err = error;
-    } else {
-      const { error } = await hyper.confirmOneClickPayment(
-        {
-          confirmParams: {
-            return_url: hyperswitchReturnUrl,
-          },
-          redirect: "if_required",
-        },
-        result
-      );
-      err = error;
-    }
-    if (err) {
-      if (err.type) {
-        if (err.type == "validation_error") {
-          jQuery([document.documentElement, document.body]).animate(
-            {
-              scrollTop: jQuery(
-                ".payment_box.payment_method_hyperswitch_checkout"
-              ).offset().top,
-            },
-            500
-          );
-        } else {
-          location.href = hyperswitchReturnUrl;
-        }
-      } else {
-        location.href = hyperswitchReturnUrl;
-      }
-      jQuery(".payment_method_hyperswitch_checkout").unblock();
-    } else {
-      location.href = hyperswitchReturnUrl;
-    }
+      },
+      result
+    );
+    error = response.error;
   }
+
+  if (error) {
+    handlePaymentError(error);
+  } else {
+    redirectToReturnUrl();
+  }
+}
+
+function handlePaymentError(error) {
+  if (error.type === "validation_error") {
+    scrollToPaymentBox();
+  } else {
+    redirectToReturnUrl();
+  }
+  jQuery(".payment_method_hyperswitch_checkout").unblock();
+}
+
+function scrollToPaymentBox() {
+  jQuery([document.documentElement, document.body]).animate(
+    {
+      scrollTop: jQuery(".payment_box.payment_method_hyperswitch_checkout").offset().top,
+    },
+    500
+  );
+}
+
+function redirectToReturnUrl() {
+  location.href = hyperswitchReturnUrl;
 }
 
 function updatePaymentIntent(inputChangeId) {
