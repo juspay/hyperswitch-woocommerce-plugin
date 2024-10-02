@@ -423,33 +423,49 @@ function rgbaToHex(r, g, b, a) {
   );
 }
 
-function hexToHex(hex) {
+function formatHexString(hex) {
   hex = hex.replace("#", "").toUpperCase();
-  if (hex.length === 3) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+
+  if (![3, 6].includes(hex.length)) {
+    throw new Error("Invalid hex color length. Hex code must be either 3 or 6 characters.");
   }
 
-  return "#" + hex;
+  if (hex.length === 3) {
+    hex = [...hex].map((char) => char + char).join("");
+  }
+
+  return `#${hex}`;
 }
 
 function colorStringToHex(colorString) {
-  if (colorString.startsWith("rgb(")) {
-    const values = colorString
-      .substring(4, colorString.length - 1)
-      .split(",")
-      .map((val) => parseInt(val));
-    return rgbToHex(values[0], values[1], values[2]);
-  } else if (colorString.startsWith("rgba(")) {
-    const values = colorString
-      .substring(5, colorString.length - 1)
-      .split(",")
-      .map((val) => parseFloat(val));
-    return rgbaToHex(values[0], values[1], values[2], values[3]);
-  } else if (colorString.startsWith("#")) {
-    return hexToHex(colorString);
-  } else {
-    throw new Error("Invalid color string");
+  if (!colorString || typeof colorString !== "string") {
+    throw new Error("Input must be a valid color string.");
   }
+
+  if (colorString.startsWith("rgb(")) {
+    const rgbValues = parseColorValues(colorString, 3);
+    return rgbToHex(...rgbValues);
+  } else if (colorString.startsWith("rgba(")) {
+    const rgbaValues = parseColorValues(colorString, 4);
+    return rgbaToHex(...rgbaValues);
+  } else if (colorString.startsWith("#")) {
+    return formatHexString(colorString);
+  } else {
+    throw new Error("Invalid color format. Supported formats are RGB, RGBA, and Hex.");
+  }
+}
+
+function parseColorValues(colorString, expectedLength) {
+  const values = colorString
+      .substring(colorString.indexOf("(") + 1, colorString.length - 1)
+      .split(",")
+      .map((val, index) => (index === 3 ? parseFloat(val) : parseInt(val.trim())));
+
+  if (values.length !== expectedLength || values.some(isNaN)) {
+    throw new Error(`Invalid color values. Expected ${expectedLength} values.`);
+  }
+
+  return values;
 }
 
 function checkMultiplePaymentMethods() {
