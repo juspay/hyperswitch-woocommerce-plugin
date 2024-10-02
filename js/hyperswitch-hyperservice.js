@@ -394,6 +394,8 @@ function updatePaymentIntent(inputChangeId) {
 }
 
 function checkWcHexIsLight(color) {
+  var RE_HEX = /^#(?:[0-9a-f]{3}){1,2}$/i;
+  if (!RE_HEX.test(color)) throw new Error('Invalid HEX color: "' + color + '"');
   const hex = color.replace("#", "");
   const c_r = parseInt(hex.substr(0, 2), 16);
   const c_g = parseInt(hex.substr(2, 2), 16);
