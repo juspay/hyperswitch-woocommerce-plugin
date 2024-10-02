@@ -423,7 +423,7 @@ function rgbaToHex(r, g, b, a) {
   );
 }
 
-function formatHexString(hex) {
+function hexToHex(hex) {
   hex = hex.replace("#", "").toUpperCase();
 
   if (![3, 6].includes(hex.length)) {
@@ -449,7 +449,7 @@ function colorStringToHex(colorString) {
     const rgbaValues = parseColorValues(colorString, 4);
     return rgbaToHex(...rgbaValues);
   } else if (colorString.startsWith("#")) {
-    return formatHexString(colorString);
+    return hexToHex(colorString);
   } else {
     throw new Error("Invalid color format. Supported formats are RGB, RGBA, and Hex.");
   }
