@@ -290,31 +290,31 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
-  if (!result && !isOneClickPaymentMethod) return;
+  if (result || isOneClickPaymentMethod) {
+    let error;
 
-  let error;
-
-  if (!isOneClickPaymentMethod && result) {
-    const response = await hyper.confirmPayment({
-      confirmParams: { return_url: hyperswitchReturnUrl },
-      redirect: "if_required",
-    });
-    error = response.error;
-  } else {
-    const response = await hyper.confirmOneClickPayment(
-      {
+    if (!isOneClickPaymentMethod && result) {
+      const response = await hyper.confirmPayment({
         confirmParams: { return_url: hyperswitchReturnUrl },
         redirect: "if_required",
-      },
-      result
-    );
-    error = response.error;
-  }
+      });
+      error = response.error;
+    } else {
+      const response = await hyper.confirmOneClickPayment(
+        {
+          confirmParams: { return_url: hyperswitchReturnUrl },
+          redirect: "if_required",
+        },
+        result
+      );
+      error = response.error;
+    }
 
-  if (error) {
-    handlePaymentError(error);
-  } else {
-    redirectToReturnUrl();
+    if (error) {
+      handlePaymentError(error);
+    } else {
+      redirectToReturnUrl();
+    }
   }
 }
 
