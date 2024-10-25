@@ -37,6 +37,19 @@ define( 'HYPERSWITCH_PLUGIN_URL', untrailingslashit( plugins_url( basename( plug
 
 require_once __DIR__ . '/includes/hyperswitch-webhook.php';
 
+function enqueue_checkout_validation_script() {
+    if (is_checkout()) {
+        wp_enqueue_script(
+            'checkout-validation',
+            plugin_dir_url(__FILE__) . 'js/checkout-validation.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'enqueue_checkout_validation_script');
+
 add_action( 'plugins_loaded', 'hyperswitch_init_payment_class', 0 );
 add_action( 'admin_post_nopriv_hyperswitch_wc_webhook', 'hyperswitch_webhook_init', 10 );
 add_action( 'wp_ajax_nopriv_hyperswitch_create_or_update_payment_intent', 'hyperswitch_create_or_update_payment_intent', 5 );
