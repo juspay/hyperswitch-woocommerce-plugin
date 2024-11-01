@@ -1,9 +1,27 @@
 # Copyright (C) 2024 Hyperswitch
 # This file is distributed under the GPLv2 or later.
+#, fuzzy
 msgid ""
 msgstr ""
+"#-#-#-#-#  hyperswitch-checkout.pot (Hyperswitch Checkout for WooCommerce "
+"1.6.2)  #-#-#-#-#\n"
 "Project-Id-Version: Hyperswitch Checkout for WooCommerce 1.6.2\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/hyperswitch-woocommerce-plugin\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/hyperswitch-"
+"woocommerce-plugin\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-10-06T12:46:48+05:30\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: hyperswitch-checkout\n"
+"#-#-#-#-#  hyperswitch.pot (Hyperswitch Checkout for WooCommerce 1.6.2)  #-#-"
+"#-#-#\n"
+"Project-Id-Version: Hyperswitch Checkout for WooCommerce 1.6.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/hyperswitch-"
+"woocommerce-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -35,6 +53,249 @@ msgstr ""
 msgid "Hyperswitch"
 msgstr ""
 
+#: hyperswitch-checkout.php:60
+msgid "Allow customers to securely pay via Hyperswitch"
+msgstr ""
+
+#: hyperswitch-checkout.php:134
+msgid "Settings"
+msgstr ""
+
+#: hyperswitch-checkout.php:237
+msgid "Capture Payment with Hyperswitch"
+msgstr ""
+
+#: hyperswitch-checkout.php:241
+msgid "Sync Payment with Hyperswitch"
+msgstr ""
+
+#. translators: %s: payment ID
+#: hyperswitch-checkout.php:286
+msgid "Synced Payment Status (Hyperswitch Payment ID: %s)"
+msgstr ""
+
+#. translators: %1$s: payment method, %2$s: payment ID
+#: hyperswitch-checkout.php:297 hyperswitch-checkout.php:876
+msgid "Payment successful via %1$s (Hyperswitch Payment ID: %2$s)"
+msgstr ""
+
+#. translators: %1$s: payment method, %2$s: payment ID
+#: hyperswitch-checkout.php:306 hyperswitch-checkout.php:894
+msgid "Payment processing via %1$s (Hyperswitch Payment ID: %2$s)"
+msgstr ""
+
+#. translators: %1$s: payment method, %2$s: payment ID
+#: hyperswitch-checkout.php:313
+msgid "Payment failed via %1$s (Hyperswitch Payment ID: %2$s)"
+msgstr ""
+
+#: hyperswitch-checkout.php:326
+msgid "Enable/Disable"
+msgstr ""
+
+#: hyperswitch-checkout.php:327
+msgid "Enable Hyperswitch"
+msgstr ""
+
+#: hyperswitch-checkout.php:333
+msgid "Title"
+msgstr ""
+
+#: hyperswitch-checkout.php:335
+msgid ""
+"The title to be displayed for Hyperswitch Payment Method (in case of "
+"multiple WooCommerce Payment Gateways/ Methods)"
+msgstr ""
+
+#: hyperswitch-checkout.php:336
+msgid "Credit, Debit Card and Wallet Payments (powered by Hyperswitch)"
+msgstr ""
+
+#: hyperswitch-checkout.php:339
+msgid "Environment"
+msgstr ""
+
+#: hyperswitch-checkout.php:340
+msgid "Select Environment"
+msgstr ""
+
+#: hyperswitch-checkout.php:343
+msgid "Production"
+msgstr ""
+
+#: hyperswitch-checkout.php:344
+msgid "Sandbox"
+msgstr ""
+
+#: hyperswitch-checkout.php:349
+msgid "Api Key"
+msgstr ""
+
+#: hyperswitch-checkout.php:351 hyperswitch-checkout.php:356
+#: hyperswitch-checkout.php:361
+msgid "Find this on Developers > API Keys section of Hyperswitch Dashboard"
+msgstr ""
+
+#: hyperswitch-checkout.php:354
+msgid "Publishable key"
+msgstr ""
+
+#: hyperswitch-checkout.php:359
+msgid "Payment Response Hash Key"
+msgstr ""
+
+#: hyperswitch-checkout.php:364
+msgid "Business Profile ID"
+msgstr ""
+
+#: hyperswitch-checkout.php:366
+msgid ""
+"Find this on Settings > Business profiles section of Hyperswitch Dashboard"
+msgstr ""
+
+#: hyperswitch-checkout.php:369
+msgid "Enable Webhook"
+msgstr ""
+
+#. translators: %s: webhook URL
+#: hyperswitch-checkout.php:373
+msgid ""
+"Allow webhooks from Hyperswitch to receive real time updates of payments to "
+"update orders.<br/><br/><span>%s</span><br/><br/>Use this URL to be entered "
+"as Webhook URL on Hyperswitch dashboard"
+msgstr ""
+
+#: hyperswitch-checkout.php:376
+msgid "Enable Hyperswitch Webhook"
+msgstr ""
+
+#: hyperswitch-checkout.php:380
+msgid "Capture Method"
+msgstr ""
+
+#: hyperswitch-checkout.php:381
+msgid "Select Capture Method"
+msgstr ""
+
+#: hyperswitch-checkout.php:383
+msgid "Specify whether you want to capture payments manually or automatically"
+msgstr ""
+
+#: hyperswitch-checkout.php:385
+msgid "Automatic"
+msgstr ""
+
+#: hyperswitch-checkout.php:386
+msgid "Manual"
+msgstr ""
+
+#: hyperswitch-checkout.php:391 hyperswitch-checkout.php:394
+msgid "Enable Saved Payment Methods"
+msgstr ""
+
+#: hyperswitch-checkout.php:393
+msgid "Allow registered customers to pay via saved payment methods"
+msgstr ""
+
+#: hyperswitch-checkout.php:398
+msgid "Show Card Form Always"
+msgstr ""
+
+#: hyperswitch-checkout.php:400
+msgid "Show Card Form before Payment Methods List has loaded"
+msgstr ""
+
+#: hyperswitch-checkout.php:404
+msgid "Appearance"
+msgstr ""
+
+#: hyperswitch-checkout.php:407
+msgid ""
+"Use the above parameter to pass appearance config (in json format) to the "
+"checkout."
+msgstr ""
+
+#: hyperswitch-checkout.php:410
+msgid "Layout"
+msgstr ""
+
+#: hyperswitch-checkout.php:411
+msgid "Select Layout"
+msgstr ""
+
+#: hyperswitch-checkout.php:413
+msgid "Choose a layout that fits well with your UI pattern."
+msgstr ""
+
+#: hyperswitch-checkout.php:415
+msgid "Tabs"
+msgstr ""
+
+#: hyperswitch-checkout.php:416
+msgid "Accordion"
+msgstr ""
+
+#: hyperswitch-checkout.php:417
+msgid "Spaced Accordion"
+msgstr ""
+
+#: hyperswitch-checkout.php:422
+msgid "Hold Order on Processing Payments"
+msgstr ""
+
+#: hyperswitch-checkout.php:424
+msgid ""
+"Disable this only if you do not want to reduce stock levels until the "
+"payment is successful."
+msgstr ""
+
+#: hyperswitch-checkout.php:425
+msgid ""
+"Whether to hold order, reduce stock if a payment goes into processing status."
+msgstr ""
+
+#: hyperswitch-checkout.php:452 hyperswitch-checkout.php:492
+msgid "Unable to Create Hyperswitch Payment Intent."
+msgstr ""
+
+#: hyperswitch-checkout.php:456 hyperswitch-checkout.php:459
+#: hyperswitch-checkout.php:496 hyperswitch-checkout.php:499
+msgid "Something went wrong. Please contact support for assistance."
+msgstr ""
+
+#: hyperswitch-checkout.php:713
+msgid "Customer created via Woocommerce Application"
+msgstr ""
+
+#: hyperswitch-checkout.php:862
+msgid ""
+"Thank you for shopping with us. However, the transaction has been declined."
+msgstr ""
+
+#. translators: %1$s: payment method, %2$s: payment ID
+#: hyperswitch-checkout.php:887
+msgid ""
+"Payment authorized via %1$s (Hyperswitch Payment ID: %2$s). Note: Requires "
+"Capture"
+msgstr ""
+
+#. translators: %1$s: payment method, %2$s: payment ID, %3$s: error message
+#: hyperswitch-checkout.php:908
+msgid ""
+"Payment failed via %1$s (Hyperswitch Payment ID: %2$s) with error message: "
+"%3$s"
+msgstr ""
+
+#: hyperswitch-checkout.php:915
+msgid ""
+"Thank you for shopping with us. However, the payment has failed. Please "
+"retry the payment."
+msgstr ""
+
+#: hyperswitch-checkout.php:964
+msgid "Something went wrong. Please try again or reload the page."
+msgstr ""
+
 #. translators: Webhook received log message
 #: includes/hyperswitch-webhook.php:71
 msgid "WC_WEBHOOK_RECEIVED"
@@ -44,8 +305,7 @@ msgstr ""
 msgid "failed"
 msgstr ""
 
-#: includes/hyperswitch-webhook.php:88
-#: includes/hyperswitch-webhook.php:155
+#: includes/hyperswitch-webhook.php:88 includes/hyperswitch-webhook.php:155
 msgid "processing"
 msgstr ""
 
@@ -60,7 +320,9 @@ msgstr ""
 
 #. translators: 1: Payment method 2: Payment ID
 #: includes/hyperswitch-webhook.php:124
-msgid "Payment successful via %1$s (Hyperswitch Payment ID: %2$s) (via Hyperswitch Webhook)"
+msgid ""
+"Payment successful via %1$s (Hyperswitch Payment ID: %2$s) (via Hyperswitch "
+"Webhook)"
 msgstr ""
 
 #. translators: Payment succeeded webhook log message
@@ -74,10 +336,13 @@ msgstr ""
 
 #. translators: 1: Payment status 2: Payment method 3: Payment ID
 #: includes/hyperswitch-webhook.php:163
-msgid "Payment %1$s via %2$s (Hyperswitch Payment ID: %3$s) (via Hyperswitch Webhook)"
+msgid ""
+"Payment %1$s via %2$s (Hyperswitch Payment ID: %3$s) (via Hyperswitch "
+"Webhook)"
 msgstr ""
 
 #. translators: %s: Refund ID
 #: includes/hyperswitch-webhook.php:216
-msgid "Refund Successful (Hyperswitch Refund ID: %1$s) (via Hyperswitch Webhook)"
+msgid ""
+"Refund Successful (Hyperswitch Refund ID: %1$s) (via Hyperswitch Webhook)"
 msgstr ""
