@@ -291,49 +291,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function hyperswitchPaymentHandleSubmit(isOneClickPaymentMethod, result) {
   if (result || isOneClickPaymentMethod) {
-    let err;
+    let error;
+
     if (!isOneClickPaymentMethod && result) {
-      const { error } = await hyper.confirmPayment({
-        confirmParams: {
-          return_url: hyperswitchReturnUrl,
-        },
+      const response = await hyper.confirmPayment({
+        confirmParams: { return_url: hyperswitchReturnUrl },
         redirect: "if_required",
       });
-      err = error;
+      error = response.error;
     } else {
-      const { error } = await hyper.confirmOneClickPayment(
+      const response = await hyper.confirmOneClickPayment(
         {
-          confirmParams: {
-            return_url: hyperswitchReturnUrl,
-          },
+          confirmParams: { return_url: hyperswitchReturnUrl },
           redirect: "if_required",
         },
         result
       );
-      err = error;
+      error = response.error;
     }
-    if (err) {
-      if (err.type) {
-        if (err.type == "validation_error") {
-          jQuery([document.documentElement, document.body]).animate(
-            {
-              scrollTop: jQuery(
-                ".payment_box.payment_method_hyperswitch_checkout"
-              ).offset().top,
-            },
-            500
-          );
-        } else {
-          location.href = hyperswitchReturnUrl;
-        }
-      } else {
-        location.href = hyperswitchReturnUrl;
-      }
-      jQuery(".payment_method_hyperswitch_checkout").unblock();
+
+    if (error) {
+      handlePaymentError(error);
     } else {
-      location.href = hyperswitchReturnUrl;
+      redirectToReturnUrl();
     }
   }
+}
+
+function handlePaymentError(error) {
+  if (error.type === "validation_error") {
+    scrollToPaymentBox();
+  } else {
+    redirectToReturnUrl();
+  }
+  jQuery(".payment_method_hyperswitch_checkout").unblock();
+}
+
+function scrollToPaymentBox() {
+  jQuery([document.documentElement, document.body]).animate(
+    {
+      scrollTop: jQuery(".payment_box.payment_method_hyperswitch_checkout").offset().top,
+    },
+    500
+  );
+}
+
+function redirectToReturnUrl() {
+  location.href = hyperswitchReturnUrl;
 }
 
 function updatePaymentIntent(inputChangeId) {
@@ -394,6 +398,8 @@ function updatePaymentIntent(inputChangeId) {
 }
 
 function checkWcHexIsLight(color) {
+  var RE_HEX = /^#(?:[0-9a-f]{3}){1,2}$/i;
+  if (!RE_HEX.test(color)) throw new Error('Invalid HEX color: "' + color + '"');
   const hex = color.replace("#", "");
   const c_r = parseInt(hex.substr(0, 2), 16);
   const c_g = parseInt(hex.substr(2, 2), 16);
@@ -423,31 +429,47 @@ function rgbaToHex(r, g, b, a) {
 
 function hexToHex(hex) {
   hex = hex.replace("#", "").toUpperCase();
-  if (hex.length === 3) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+
+  if (![3, 6].includes(hex.length)) {
+    throw new Error("Invalid hex color length. Hex code must be either 3 or 6 characters.");
   }
 
-  return "#" + hex;
+  if (hex.length === 3) {
+    hex = [...hex].map((char) => char + char).join("");
+  }
+
+  return `#${hex}`;
 }
 
 function colorStringToHex(colorString) {
+  if (!colorString || typeof colorString !== "string") {
+    throw new Error("Input must be a valid color string.");
+  }
+
   if (colorString.startsWith("rgb(")) {
-    const values = colorString
-      .substring(4, colorString.length - 1)
-      .split(",")
-      .map((val) => parseInt(val));
-    return rgbToHex(values[0], values[1], values[2]);
+    const rgbValues = parseColorValues(colorString, 3);
+    return rgbToHex(...rgbValues);
   } else if (colorString.startsWith("rgba(")) {
-    const values = colorString
-      .substring(5, colorString.length - 1)
-      .split(",")
-      .map((val) => parseFloat(val));
-    return rgbaToHex(values[0], values[1], values[2], values[3]);
+    const rgbaValues = parseColorValues(colorString, 4);
+    return rgbaToHex(...rgbaValues);
   } else if (colorString.startsWith("#")) {
     return hexToHex(colorString);
   } else {
-    throw new Error("Invalid color string");
+    throw new Error("Invalid color format. Supported formats are RGB, RGBA, and Hex.");
   }
+}
+
+function parseColorValues(colorString, expectedLength) {
+  const values = colorString
+      .substring(colorString.indexOf("(") + 1, colorString.length - 1)
+      .split(",")
+      .map((val, index) => (index === 3 ? parseFloat(val) : parseInt(val.trim())));
+
+  if (values.length !== expectedLength || values.some(isNaN)) {
+    throw new Error(`Invalid color values. Expected ${expectedLength} values.`);
+  }
+
+  return values;
 }
 
 function checkMultiplePaymentMethods() {
